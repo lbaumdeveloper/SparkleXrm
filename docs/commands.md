@@ -38,7 +38,7 @@ For each assembly that contains `IPlugin` classes:
 2. **Plugin types** – one per public `IPlugin` class that has an attribute.
 3. **Steps and images** – one per `[CrmPluginRegistration]` attribute. Existing steps are matched by `Id` if set, otherwise by step name + message.
 4. **Custom API** – an attribute with only a message name binds the plugin type to that Custom API. The Custom API must already exist.
-5. Everything is added to `plugins[].solution`, if set.
+5. Everything is added to `plugins[].solution`. Every entry must have a `solution`; otherwise spkl stops before changing anything.
 
 > ⚠️ **spkl deletes what is not in code.** Plugin types that no longer exist in the assembly are deleted with their steps. Steps on a type that have no matching attribute are deleted. Images not in the attribute are deleted. Steps added manually in the Plugin Registration Tool will be removed on the next deploy.
 
@@ -48,10 +48,10 @@ Registers custom workflow activities (`CodeActivity` classes) from the same `plu
 
 ### `webresources`
 
-Uploads files from `webresources[].root` and publishes them. Unchanged files are skipped.
+Uploads files from `webresources[].root`, adds them to `webresources[].solution` (required) and publishes them. Unchanged files are skipped.
 
 - With a `files` list: only the listed files are deployed.
-- With `"autodetect": "yes"`: every file under `root` is deployed, and its path below `root` becomes its unique name. `root\new_\js\account.js` → `new_/js/account.js`. Requires `solution`.
+- With `"autodetect": "yes"`: every file under `root` is deployed, and its path below `root` becomes its unique name. `root\new_\js\account.js` → `new_/js/account.js`.
 - `deleteaction` decides what happens to web resources that are in the solution but no longer on disk: `no` (default), `remove` (from the solution) or `delete` (from the environment).
 
 Web resource type is taken from the file extension: `htm/html, js, css, png, gif, jpg/jpeg, ico, xml, xsl/xslt, xap, svg, resx`.

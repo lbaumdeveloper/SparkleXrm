@@ -19,6 +19,18 @@ namespace SparkleXrm.Tasks.Config
         [JsonIgnore]
         public string filePath;
 
+        /// <summary>
+        /// Throws when a deployment entry has no solution, because deploying to the default solution is not supported.
+        /// </summary>
+        public void RequireSolution(string solution, string section)
+        {
+            if (string.IsNullOrWhiteSpace(solution))
+            {
+                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.SOLUTION_REQUIRED,
+                    $"Every '{section}' entry in '{Path.Combine(filePath, "spkl.json")}' needs a 'solution'. Deploying to the default solution is not supported.");
+            }
+        }
+
         public virtual void Save()
         {
             var file = Path.Combine(filePath, "spkl.json");

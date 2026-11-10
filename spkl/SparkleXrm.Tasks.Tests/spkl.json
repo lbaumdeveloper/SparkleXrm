@@ -16,6 +16,7 @@
   "plugins": [
     {
       "profile": "default,debug",
+      "solution": "spkltestsolution",
       "assemblypath": "bin\\Debug"
     }
   ],

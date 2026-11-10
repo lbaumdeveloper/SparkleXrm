@@ -41,7 +41,7 @@ Used by `plugins`, `workflow` and `instrument`.
 |---|---|---|---|
 | `profile` | string | – | See [profiles](#profiles). |
 | `assemblypath` | string | – | DLL(s) to register. See [assembly paths](#assembly-paths). |
-| `solution` | string | – | Unique name of the solution to add the assembly and steps to. |
+| `solution` | string | **required** | Unique name of the solution the assembly, types and steps are added to. spkl stops with an error if it is missing, so nothing is deployed to the default solution. |
 | `excludePluginSteps` | bool | `false` | Register assembly and types only, no steps. Same as `/e`. |
 | `classRegex` | string | see below | `instrument` only: regex that finds plugin and workflow classes in `.cs` files. Change it if your plugins inherit from a base class not named `PluginBase` or `Plugin`. |
 
@@ -72,7 +72,7 @@ Used by `webresources`, `download-webresources` and `get-webresources`.
 |---|---|---|---|
 | `profile` | string | – | See [profiles](#profiles). |
 | `root` | string | spkl.json folder | Folder the web resource files live in. |
-| `solution` | string | – | Solution to add web resources to. Required with `autodetect`. |
+| `solution` | string | **required** | Unique name of the solution the web resources are added to. spkl stops with an error if it is missing. |
 | `autodetect` | `yes` / `no` | `no` | Deploy every file under `root`; the path below `root` becomes the unique name. |
 | `deleteaction` | `no` / `remove` / `delete` | `no` | With `autodetect`: what to do with web resources in `solution` that no longer exist on disk. |
 | `files` | list | – | Files to deploy when `autodetect` is off. |
