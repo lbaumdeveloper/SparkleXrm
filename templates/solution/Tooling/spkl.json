@@ -28,7 +28,7 @@
   "earlyboundtypes": [
     {
       "profile": "default",
-      "entities": ["account", "contact"],
+      "entities": "account,contact",
       "generateOptionsetEnums": true,
       "generateStateEnums": true,
       "filename": "..\\Helper\\EarlyBoundTypes.cs",

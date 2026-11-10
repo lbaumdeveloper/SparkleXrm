@@ -74,7 +74,7 @@ namespace SparkleXrm.Tasks.Config
             if (earlyboundtypes == null)
                 return new EarlyBoundTypeConfig[] { new EarlyBoundTypeConfig(){
                     filename ="Entities.cs",
-                    entities = new List<string> { "account", "contact" },
+                    entities = "account,contact",
                     classNamespace = "Xrm",
                     generateOptionsetEnums = true,
                     generateStateEnums = true

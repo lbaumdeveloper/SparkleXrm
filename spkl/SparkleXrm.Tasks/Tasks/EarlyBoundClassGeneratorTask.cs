@@ -90,14 +90,21 @@ namespace SparkleXrm.Tasks
             var earlyBoundTypeConfigs = config.GetEarlyBoundConfig(this.Profile);
             foreach (var earlyboundconfig in earlyBoundTypeConfigs)
             {
-                var entities = string.Join(",", earlyboundconfig.entities ?? new List<string>());
-                var actions = string.Join(",", earlyboundconfig.actions ?? new List<string>());
+                if(string.IsNullOrEmpty(earlyboundconfig.entities) && earlyboundconfig.entityCollection?.Length > 0)
+                {
+                    earlyboundconfig.entities = string.Join(",", earlyboundconfig.entityCollection);
+                }
+
+                if (string.IsNullOrEmpty(earlyboundconfig.actions) && earlyboundconfig.actionCollection?.Length > 0)
+                {
+                    earlyboundconfig.actions = string.Join(",", earlyboundconfig.actionCollection);
+                }
 
                 // Create config and copy to the CrmSvcUtil folder
                 var configXml = $@"<?xml version=""1.0"" encoding=""utf-8"" ?>
                         <configuration>
-                            <entities>{entities}</entities>
-                            <messages>{actions}</messages>
+                            <entities>{earlyboundconfig.entities}</entities>
+                            <messages>{earlyboundconfig.actions}</messages>
                             <picklistEnums>{
                         earlyboundconfig.generateOptionsetEnums.ToString().ToLower()
                     }</picklistEnums>
@@ -118,7 +125,7 @@ namespace SparkleXrm.Tasks
                     }"" /namespace:""{earlyboundconfig.classNamespace}"" /serviceContextName:""{
                         earlyboundconfig.serviceContextName
                     }"" /GenerateActions:""{
-                        actions.Length > 0
+                        !String.IsNullOrEmpty(earlyboundconfig.actions)
                     }"" /codewriterfilter:""spkl.CrmSvcUtilExtensions.FilteringService,spkl.CrmSvcUtilExtensions"" /codewritermessagefilter:""spkl.CrmSvcUtilExtensions.MessageFilteringService,spkl.CrmSvcUtilExtensions"" /codegenerationservice:""spkl.CrmSvcUtilExtensions.CodeGenerationService, spkl.CrmSvcUtilExtensions"" /metadataproviderqueryservice:""spkl.CrmSvcUtilExtensions.MetadataProviderQueryService,spkl.CrmSvcUtilExtensions""";
 
                 var procStart = new ProcessStartInfo(crmsvcutilPath, parameters)

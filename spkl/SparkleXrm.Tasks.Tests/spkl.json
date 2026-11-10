@@ -22,8 +22,8 @@
   ],
   "earlyboundtypes": [
     {
-      "entities": ["account", "contact", "quote"],
-      "actions": ["dev1_simpleaction"],
+      "entities": "account,contact,quote",
+      "actions": "dev1_simpleaction",
       "generateOptionsetEnums": true,
       "generateGlobalOptionsets": false,
       "generateStateEnums": true,

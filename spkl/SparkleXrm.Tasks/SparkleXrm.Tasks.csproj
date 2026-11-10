@@ -141,7 +141,6 @@
     <Compile Include="Config\MapTypes.cs" />
     <Compile Include="Config\SolutionPackageConfig.cs" />
     <Compile Include="Config\SolutionPackageMap.cs" />
-    <Compile Include="Config\StringListConverter.cs" />
     <Compile Include="CrmPluginRegistrationAttribute.cs" />
     <Compile Include="CustomAttributeDataEx.cs" />
     <Compile Include="Exceptions.cs" />

@@ -32,7 +32,7 @@ namespace SparkleXrm.Tasks.Tests
                                 new EarlyBoundTypeConfig{
                                   generateOptionsetEnums = true,
                                   generateGlobalOptionsets = true,
-                                  entities = new List<string> { "socialprofile", "socialactivity" },
+                                  entities ="socialprofile,socialactivity",
                                   filename="entities.cs"
                                     }
                                 },
@@ -70,7 +70,7 @@ namespace SparkleXrm.Tasks.Tests
                         new EarlyBoundTypeConfig{
                             generateOptionsetEnums = true,
                             generateGlobalOptionsets = true,
-                            entities = new List<string> { "socialprofile", "socialactivity" },
+                            entities ="socialprofile,socialactivity",
                             filename="entities.cs",
                             oneTypePerFile = true
                         }
@@ -111,7 +111,7 @@ namespace SparkleXrm.Tasks.Tests
                                 new EarlyBoundTypeConfig{
                                   generateOptionsetEnums = true,
                                   generateGlobalOptionsets = false,
-                                  entities = new List<string> { "socialprofile", "socialactivity" },
+                                  entities ="socialprofile,socialactivity",
                                   filename="entities.cs"
                                     }
                                 },
@@ -154,7 +154,7 @@ namespace SparkleXrm.Tasks.Tests
                         new EarlyBoundTypeConfig{
                             generateOptionsetEnums = true,
                             generateGlobalOptionsets = false,
-                            entities = new List<string> { "socialprofile", "socialactivity" },
+                            entities ="socialprofile,socialactivity",
                             filename="entities.cs",
                             oneTypePerFile = true
                         }
@@ -196,7 +196,7 @@ namespace SparkleXrm.Tasks.Tests
                                 new EarlyBoundTypeConfig{
                                   generateOptionsetEnums = false,
                                   generateGlobalOptionsets = false,
-                                  entities = new List<string> { "socialprofile", "socialactivity" },
+                                  entities ="socialprofile,socialactivity",
                                   filename="entities.cs"
                                     }
                                 },
@@ -239,7 +239,7 @@ namespace SparkleXrm.Tasks.Tests
                         new EarlyBoundTypeConfig{
                             generateOptionsetEnums = false,
                             generateGlobalOptionsets = false,
-                            entities = new List<string> { "socialprofile", "socialactivity" },
+                            entities ="socialprofile,socialactivity",
                             filename="entities.cs",
                             oneTypePerFile = true
                         }
