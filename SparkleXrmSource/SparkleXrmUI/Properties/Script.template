@@ -1,9 +1,0 @@
-//! #= ScriptFile ##
-//
-window._loadedScripts = window._loadedScripts || {};
-window._loadedScripts['xrmui'] = true;
-(function($){
-#include[as-is] "%code%"
-})(window.xrmjQuery);
-
-
