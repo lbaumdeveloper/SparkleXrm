@@ -1,0 +1,279 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/lbaumdeveloper/SparkleXrm/master/docs/spkl.schema.json",
+  "title": "spkl.json",
+  "description": "Configuration for the spkl deployment task runner. Paths are relative to the folder that contains this file.",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string"
+    },
+    "plugins": {
+      "description": "Assemblies deployed by the plugins and workflow tasks.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "solution",
+          "assemblypath"
+        ],
+        "properties": {
+          "profile": {
+            "$ref": "#/definitions/profile"
+          },
+          "solution": {
+            "$ref": "#/definitions/solution"
+          },
+          "assemblypath": {
+            "description": "Glob relative to this file, e.g. ..\\Plugins\\bin\\Debug\\Contoso.Plugins.dll. Without a file extension, *.dll in that folder is used.",
+            "type": "string",
+            "minLength": 1
+          },
+          "excludePluginSteps": {
+            "description": "Register assembly and plugin types only, no steps.",
+            "type": "boolean",
+            "default": false
+          },
+          "classRegex": {
+            "description": "instrument only: regex that finds plugin and workflow classes in .cs files.",
+            "type": "string"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "webresources": {
+      "description": "Webresources deployed by the webresources task.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "solution"
+        ],
+        "properties": {
+          "profile": {
+            "$ref": "#/definitions/profile"
+          },
+          "solution": {
+            "$ref": "#/definitions/solution"
+          },
+          "root": {
+            "description": "Folder that contains the webresource files, relative to this file.",
+            "type": "string"
+          },
+          "autodetect": {
+            "description": "yes: deploy every file under root; its path below root becomes the unique name.",
+            "type": "string",
+            "enum": [
+              "yes",
+              "no"
+            ],
+            "default": "no"
+          },
+          "deleteaction": {
+            "description": "With autodetect: what to do with webresources in the solution that no longer exist on disk.",
+            "type": "string",
+            "enum": [
+              "no",
+              "remove",
+              "delete"
+            ],
+            "default": "no"
+          },
+          "files": {
+            "description": "Files to deploy when autodetect is off.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "file"
+              ],
+              "properties": {
+                "file": {
+                  "description": "Path relative to root.",
+                  "type": "string"
+                },
+                "uniquename": {
+                  "description": "Name in Dataverse including the publisher prefix. Defaults to file with / separators.",
+                  "type": "string"
+                },
+                "displayname": {
+                  "description": "Defaults to uniquename.",
+                  "type": "string"
+                },
+                "description": {
+                  "type": "string"
+                },
+                "languagecode": {
+                  "description": "LCID, e.g. 1031.",
+                  "type": "integer"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "earlyboundtypes": {
+      "description": "Early-bound class generation for the earlybound task.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "profile": {
+            "$ref": "#/definitions/profile"
+          },
+          "entities": {
+            "description": "Comma-separated table logical names.",
+            "type": "string"
+          },
+          "entityCollection": {
+            "description": "Table logical names as an array. Used when entities is empty.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actions": {
+            "description": "Comma-separated custom action / Custom API names.",
+            "type": "string"
+          },
+          "actionCollection": {
+            "description": "Action names as an array. Used when actions is empty.",
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "generateOptionsetEnums": {
+            "type": "boolean",
+            "default": false
+          },
+          "generateGlobalOptionsets": {
+            "type": "boolean",
+            "default": false
+          },
+          "generateStateEnums": {
+            "type": "boolean",
+            "default": false
+          },
+          "filename": {
+            "description": "Output file, relative to this file.",
+            "type": "string"
+          },
+          "classNamespace": {
+            "type": "string"
+          },
+          "serviceContextName": {
+            "type": "string"
+          },
+          "oneTypePerFile": {
+            "type": "boolean",
+            "default": false
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "solutions": {
+      "description": "Solution packaging for the unpack, unpacksolution, pack, import, export and download-webresources tasks.",
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "solution_uniquename"
+        ],
+        "properties": {
+          "profile": {
+            "$ref": "#/definitions/profile"
+          },
+          "solution_uniquename": {
+            "$ref": "#/definitions/solution"
+          },
+          "packagepath": {
+            "description": "Folder the unpacked solution lives in.",
+            "type": "string"
+          },
+          "solutionpath": {
+            "description": "Zip path. {0}-{3} are replaced by the version parts.",
+            "type": "string",
+            "default": "solution.zip"
+          },
+          "packagetype": {
+            "type": "string",
+            "enum": [
+              "unmanaged",
+              "managed",
+              "both_unmanaged_import",
+              "both_managed_import"
+            ],
+            "default": "unmanaged"
+          },
+          "increment_on_import": {
+            "description": "import increases the last version part first.",
+            "type": "boolean",
+            "default": false
+          },
+          "clobber": {
+            "type": "boolean",
+            "default": true
+          },
+          "allowwrite": {
+            "type": "boolean",
+            "default": true
+          },
+          "allowdelete": {
+            "type": "boolean",
+            "default": true
+          },
+          "map": {
+            "description": "SolutionPackager mappings.",
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": [
+                "map",
+                "from",
+                "to"
+              ],
+              "properties": {
+                "map": {
+                  "type": "string",
+                  "enum": [
+                    "file",
+                    "path",
+                    "folder"
+                  ]
+                },
+                "from": {
+                  "description": "Path inside the solution package.",
+                  "type": "string"
+                },
+                "to": {
+                  "description": "Path on disk.",
+                  "type": "string"
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false,
+  "definitions": {
+    "profile": {
+      "description": "Comma-separated profile names. Entries without a profile, or with 'default', run when no /p: is given.",
+      "type": "string"
+    },
+    "solution": {
+      "description": "Unique name of the Dataverse solution. Deploying to the default solution is not supported.",
+      "type": "string",
+      "minLength": 1
+    }
+  }
+}

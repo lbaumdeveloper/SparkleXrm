@@ -66,7 +66,7 @@ Replace the placeholders in the template:
 | `<WorkflowsAssembly>` | `Contoso.Workflows` |
 | `<Namespace>` | `Contoso` |
 
-All paths in `spkl.json` are relative to the folder that contains `spkl.json`, which is why they start with `..\`. Every option is described in the [spkl.json reference](spkl-json.md).
+All paths in `spkl.json` are relative to the folder that contains `spkl.json`, which is why they start with `..\`. The `$schema` line gives you completion and validation in VS Code and Visual Studio. Every option is described in the [spkl.json reference](spkl-json.md).
 
 ## 5. Run commands
 

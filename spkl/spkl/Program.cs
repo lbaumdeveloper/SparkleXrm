@@ -397,12 +397,6 @@ namespace SparkleXrmTask
                     task = export;
                     break;
 
-                case "compare":
-                    trace.WriteLine("Comparing Solution");
-                    var compare = new SolutionPackagerTask(service, trace);
-                    compare.command = command;
-                    task = compare;
-                    break;
             }
 
             if (task != null)

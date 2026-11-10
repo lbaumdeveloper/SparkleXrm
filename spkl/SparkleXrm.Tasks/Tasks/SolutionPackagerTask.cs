@@ -175,23 +175,6 @@ namespace SparkleXrm.Tasks
             return solutionZipPath;
         }
 
-        private void Diff(OrganizationServiceContext ctx, ConfigFile config)
-        {
-            var configs = config.GetSolutionConfig(this.Profile);
-            foreach (var solutionPackagerConfig in configs)
-            {
-                var movetoFolder = Path.Combine(config.filePath, solutionPackagerConfig.packagepath);
-                var unpackPath = GetRandomFolder();
-                unpackPath = UnPackSolution(solutionPackagerConfig, unpackPath);
-
-                // Delete existing content
-                Directory.Delete(movetoFolder, true);
-
-                // Copy to the package path
-                DirectoryCopy(unpackPath, movetoFolder, true);
-            }
-        }
-
         public Solution GetSolution(string uniqueName)
         {
             //Check whether it already exists
@@ -335,13 +318,6 @@ namespace SparkleXrm.Tasks
             var publishRequest = new PublishAllXmlRequest();
             var publishResponse = (PublishAllXmlResponse)_service.Execute(publishRequest);
             _trace.WriteLine("Solution Publish Completed");
-        }
-
-        private string GetRandomFolder()
-        {
-            // Get random folder
-            var targetFolder = Path.Combine(Path.GetTempPath(), Path.GetRandomFileName());
-            return targetFolder;
         }
 
         private string UnPackSolution(SolutionPackageConfig solutionPackagerConfig, string targetFolder)
@@ -559,44 +535,6 @@ namespace SparkleXrm.Tasks
             if (exitCode != 0)
             {
                 throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.SOLUTIONPACKAGER_ERROR, String.Format("Solution Packager exited with error {0}", exitCode));
-            }
-        }
-
-        private static void DirectoryCopy(string sourceDirName, string destDirName, bool copySubDirs)
-        {
-            // Get the subdirectories for the specified directory.
-            var dir = new DirectoryInfo(sourceDirName);
-
-            if (!dir.Exists)
-            {
-                throw new DirectoryNotFoundException(
-                    "Source directory does not exist or could not be found: "
-                    + sourceDirName);
-            }
-
-            var dirs = dir.GetDirectories();
-            // If the destination directory doesn't exist, create it.
-            if (!Directory.Exists(destDirName))
-            {
-                Directory.CreateDirectory(destDirName);
-            }
-
-            // Get the files in the directory and copy them to the new location.
-            var files = dir.GetFiles();
-            foreach (FileInfo file in files)
-            {
-                var temppath = Path.Combine(destDirName, file.Name);
-                file.CopyTo(temppath, false);
-            }
-
-            // If copying subdirectories, copy them and their contents to new location.
-            if (copySubDirs)
-            {
-                foreach (DirectoryInfo subdir in dirs)
-                {
-                    var temppath = Path.Combine(destDirName, subdir.Name);
-                    DirectoryCopy(subdir.FullName, temppath, copySubDirs);
-                }
             }
         }
 

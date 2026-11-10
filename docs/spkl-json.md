@@ -17,11 +17,13 @@
 
 **Comments** (`/* ... */`) are allowed; spkl uses Json.NET, which accepts them.
 
-**Search**: spkl looks for `spkl.json` in the `path` you pass **and every sub-folder**, and runs the task once per file it finds. Files under a `packages\spkl…` folder are ignored. Keep a single `spkl.json` in `Tooling\` and always pass that folder.
+**Location**: spkl loads exactly one `spkl.json`: the one in the `path` you pass, or the file itself if `path` ends in `spkl.json`. Sub-folders are not searched.
+
+**Editor support**: add `"$schema": "https://raw.githubusercontent.com/lbaumdeveloper/SparkleXrm/master/docs/spkl.schema.json"` as the first property to get completion, descriptions and validation in VS Code and Visual Studio. The [template](../templates/solution/Tooling/spkl.json) already has it.
 
 ### Profiles
 
-Every entry has an optional `profile`: a comma-separated list of names, without spaces.
+Every entry has an optional `profile`: a comma-separated list of names. Spaces are ignored.
 
 | You run | Entries used |
 |---|---|
@@ -40,23 +42,22 @@ Used by `plugins`, `workflow` and `instrument`.
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `profile` | string | – | See [profiles](#profiles). |
-| `assemblypath` | string | – | DLL(s) to register. See [assembly paths](#assembly-paths). |
+| `assemblypath` | string | **required** | DLL(s) to register. See [assembly paths](#assembly-paths). |
 | `solution` | string | **required** | Unique name of the solution the assembly, types and steps are added to. spkl stops with an error if it is missing, so nothing is deployed to the default solution. |
 | `excludePluginSteps` | bool | `false` | Register assembly and types only, no steps. Same as `/e`. |
 | `classRegex` | string | see below | `instrument` only: regex that finds plugin and workflow classes in `.cs` files. Change it if your plugins inherit from a base class not named `PluginBase` or `Plugin`. |
 
 ### Assembly paths
 
-How `assemblypath` is matched depends on how it starts:
+`assemblypath` is a glob relative to the spkl.json folder, matched exactly as written:
 
-| Starts with | Matched as | Example |
-|---|---|---|
-| `..`, `**` or `\\` | a glob relative to the spkl.json folder, exactly as written | `..\\Plugins\\bin\\Debug\\Contoso.Plugins.dll` |
-| anything else | `**\\` + the value: **any** matching file in any sub-folder of the spkl.json folder | `bin\\Debug\\Contoso.Plugins.dll` |
+| Value | Matches |
+|---|---|
+| `..\\Plugins\\bin\\Debug\\Contoso.Plugins.dll` | that one file |
+| `..\\Plugins\\bin\\Debug` | every `*.dll` in that folder (no extension → `\\*.dll` is appended) |
+| `..\\Plugins\\bin\\**\\Contoso.Plugins.dll` | the file in any sub-folder of `bin`, e.g. both `Debug` and `Release` |
 
-If the value has no file extension, `\\*.dll` is appended, so a folder means all its DLLs. `System.*.dll`, the Dataverse SDK DLLs and Newtonsoft.Json are always skipped.
-
-Use the exact DLL path starting with `..\\`. It is the only form that cannot pick up a copy of the DLL from another `bin` folder.
+`System.*.dll`, the Dataverse SDK DLLs and Newtonsoft.Json are always skipped. Prefer the exact DLL path, so dependencies and other build configurations are not picked up.
 
 Default `classRegex`:
 
@@ -123,7 +124,7 @@ Used by `unpack`, `unpacksolution`, `pack`, `import`, `export` and `download-web
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
-| `profile` | string | – | See [profiles](#profiles). Note: in this section a space after the comma breaks matching. |
+| `profile` | string | – | See [profiles](#profiles). |
 | `solution_uniquename` | string | – | Unique name of the solution in Dataverse. |
 | `packagepath` | string | – | Folder the unpacked solution lives in. |
 | `solutionpath` | string | `solution.zip` | Zip file path. `{0}`–`{3}` are replaced by the four version parts: `"Solutions\\Contoso_{0}_{1}_{2}_{3}.zip"`. |
