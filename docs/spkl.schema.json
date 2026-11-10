@@ -126,26 +126,22 @@
             "$ref": "#/definitions/profile"
           },
           "entities": {
-            "description": "Comma-separated table logical names.",
-            "type": "string"
-          },
-          "entityCollection": {
-            "description": "Table logical names as an array. Used when entities is empty.",
+            "description": "Table logical names, e.g. [\"account\", \"contact\"].",
             "type": "array",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
           },
           "actions": {
-            "description": "Comma-separated custom action / Custom API names.",
-            "type": "string"
-          },
-          "actionCollection": {
-            "description": "Action names as an array. Used when actions is empty.",
+            "description": "Custom action / Custom API unique names to generate request and response classes for.",
             "type": "array",
             "items": {
-              "type": "string"
-            }
+              "type": "string",
+              "minLength": 1
+            },
+            "uniqueItems": true
           },
           "generateOptionsetEnums": {
             "type": "boolean",

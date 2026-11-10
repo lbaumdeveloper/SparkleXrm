@@ -104,10 +104,8 @@ Used by `earlybound`.
 | Field | Type | Default | Meaning |
 |---|---|---|---|
 | `profile` | string | – | See [profiles](#profiles). |
-| `entities` | string | – | Comma-separated logical names: `"account,contact"`. |
-| `entityCollection` | string[] | – | Same as `entities`, as an array. Used only if `entities` is empty. |
-| `actions` | string | – | Comma-separated custom action / Custom API names. |
-| `actionCollection` | string[] | – | Same as `actions`, as an array. |
+| `entities` | string[] | – | Table logical names: `["account", "contact"]`. |
+| `actions` | string[] | – | Custom action / Custom API unique names: `["contoso_CalculateDiscount"]`. |
 | `generateOptionsetEnums` | bool | `false` | Generate enums for choice columns. |
 | `generateGlobalOptionsets` | bool | `false` | Generate enums for global choices. |
 | `generateStateEnums` | bool | `false` | Generate enums for `statecode`. |
@@ -116,7 +114,9 @@ Used by `earlybound`.
 | `serviceContextName` | string | – | Name of the generated `OrganizationServiceContext`. |
 | `oneTypePerFile` | bool | `false` | Split the output into one file per type, next to `filename`. |
 
-If the section is missing, spkl generates `Entities.cs` for `account,contact` in namespace `Xrm`.
+If the section is missing, spkl generates `Entities.cs` for `account` and `contact` in namespace `Xrm`.
+
+Older files with a comma-separated string (`"entities": "account,contact"`) are still read. `entityCollection` and `actionCollection` are no longer supported; rename them to `entities` and `actions`.
 
 ## `solutions`
 

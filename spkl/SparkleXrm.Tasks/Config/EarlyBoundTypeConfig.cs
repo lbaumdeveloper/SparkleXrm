@@ -1,18 +1,17 @@
-﻿using System;
+﻿using Newtonsoft.Json;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace SparkleXrm.Tasks.Config
 {
     public class EarlyBoundTypeConfig
     {
         public string profile;
-        public string entities;
-        public string[] entityCollection;
-        public string actions;
-        public string[] actionCollection;
+
+        [JsonConverter(typeof(StringListConverter))]
+        public List<string> entities;
+
+        [JsonConverter(typeof(StringListConverter))]
+        public List<string> actions;
         public bool generateOptionsetEnums;
         public bool generateGlobalOptionsets;
         public bool generateStateEnums;

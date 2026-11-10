@@ -92,6 +92,28 @@ namespace SparkleXrm.Tasks.Tests
             Assert.AreEqual(2, files.Count);
         }
 
+        [TestMethod]
+        [TestCategory("Unit Tests")]
+        public void EarlyBoundEntitiesAndActionsAreArrays()
+        {
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<EarlyBoundTypeConfig>(
+                "{ \"entities\": [\"account\", \"contact\"], \"actions\": [\"contoso_Calculate\"] }");
+
+            CollectionAssert.AreEqual(new List<string> { "account", "contact" }, config.entities);
+            CollectionAssert.AreEqual(new List<string> { "contoso_Calculate" }, config.actions);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit Tests")]
+        public void EarlyBoundEntitiesAcceptCommaSeparatedString()
+        {
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<EarlyBoundTypeConfig>(
+                "{ \"entities\": \"account, contact\" }");
+
+            CollectionAssert.AreEqual(new List<string> { "account", "contact" }, config.entities);
+            Assert.IsNull(config.actions);
+        }
+
         private void CreateFile(string relativePath, string content)
         {
             var path = Path.Combine(_root, relativePath);

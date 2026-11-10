@@ -9,8 +9,13 @@
     "earlyboundtypes": [
         {
             "profile": "default",
-            "entities": "account,contact,quote,goal",
-            "actions": "dev1_simpleaction",
+            "entities": [
+              "account",
+              "contact",
+              "quote",
+              "goal"
+            ],
+            "actions": ["dev1_simpleaction"],
             "generateOptionsetEnums": true,
             "generateGlobalOptionsets": false,
             "generateStateEnums": true,
