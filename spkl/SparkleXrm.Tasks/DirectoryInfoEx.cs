@@ -36,18 +36,34 @@ namespace SparkleXrm.Tasks
             }
         }
 
+        /// <summary>
+        /// Finds files by name in the folder and all sub-folders. Multiple names are separated by '|'.
+        /// </summary>
         public List<string> Search(string path, string search)
         {
+            var patterns = search
+                .Split('|')
+                .Select(s => s.StartsWith("..") || s.StartsWith("**") || s.StartsWith("\\") ? s : "**\\" + s);
+
+            return Match(path, patterns);
+        }
+
+        /// <summary>
+        /// Matches glob patterns relative to the folder exactly as written. Multiple patterns are separated by '|'.
+        /// </summary>
+        public List<string> Glob(string path, string pattern)
+        {
+            return Match(path, pattern.Split('|'));
+        }
+
+        private static List<string> Match(string path, IEnumerable<string> patterns)
+        {
             var matcher = new Matcher(StringComparison.InvariantCultureIgnoreCase);
-            if (search.StartsWith("..") || search.StartsWith("**") || search.StartsWith("\\"))
+            foreach (var pattern in patterns)
             {
-                matcher.AddInclude(search);
+                matcher.AddInclude(pattern);
             }
-            else
-            {
-                matcher.AddInclude("**\\" + search);
-            }
-            
+
             var globbMatch = matcher.Execute(new DirectoryInfoWrapper(new DirectoryInfo(path)));
 
             var matchList = new List<string>();

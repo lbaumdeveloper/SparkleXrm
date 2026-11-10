@@ -14,17 +14,19 @@ namespace SparkleXrmTask
         public bool Help { get; set; }
 
         [CommandLineParameter(Name = "task", ParameterIndex = 1, Required = true, Description = @"
-plugins = Deploy Plugins
-workflow = Deploy Workflows
-webresources = Deploy webresources
-instrument = Download plugin/workflows and add code attributes to existing classes
-get-webresources = Download webresources and match to the local files to create a spkl.json file for deployment
-download-webresources = Download webresources and add missing local files to the spkl.json file for deployment
+plugins = Deploy plugins and Custom API plugin types
+workflow = Deploy custom workflow activities
+webresources = Deploy and publish webresources
+instrument = Read registrations from Dynamics 365 and add [CrmPluginRegistration] attributes to existing classes
+get-webresources = Match local webresource files to webresources in Dynamics 365 and add them to spkl.json
+download-webresources = Download the webresources of a solution to local files
 earlybound = Create earlybound types for C# development
-unpack = Download and unpack a solution from Dynamics 365 into xml files & folders
-unpacksolution = Download and unpack a Dynamic 365 solution zip from the filesystem into xml files & folders
-pack = Packs an unpacked solution into a new Solution Zip - grabbing the latest assemblies and webresources from their mapped locations
-import = Packs a solution as per the 'pack' task, and then imports into Dynamics 365
+unpack = Export a solution from Dynamics 365 and unpack it into xml files & folders
+unpacksolution = Unpack a solution zip from the filesystem into xml files & folders
+pack = Pack an unpacked solution into a solution zip, taking assemblies and webresources from their mapped locations
+import = Pack a solution as per the 'pack' task, then import it into Dynamics 365 and publish
+export = Export a solution from Dynamics 365 as zip file(s)
+whoami = Show the organization and user of the connection
 ")]
         public string Task { get; set; }
 

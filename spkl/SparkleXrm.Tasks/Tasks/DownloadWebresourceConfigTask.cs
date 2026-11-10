@@ -66,24 +66,25 @@ namespace SparkleXrm.Tasks
                 }
             }
 
-            var webresources = ServiceLocator.DirectoryService.Search(filePath, "*.js|*.htm|*.css|*.xap|*.png|*.jpeg|*.jpg|*.gif|*.ico|*.xml");
-
-            if (webresources == null)
-                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.NO_WEBRESOURCES_FOUND, $"No webresources found in the folder '{filePath}'");
-
             // check there is a prefix supplied
             if (string.IsNullOrWhiteSpace(Prefix))
             {
-                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.MISSING_PREFIX, "Please supply the prefix for your webresources e.g. /p:new");
+                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.MISSING_PREFIX, "Please supply the prefix for your webresources e.g. /s:new");
             }
-            // Get a list of all webresources!
-            var matchList = ServiceLocator.Queries.GetWebresources(ctx).ToDictionary(w => w.Name.ToLower().Replace(Prefix + (Prefix.EndsWith("_") ? "" : "_"), ""));
 
             var webresourceConfig = config.GetWebresourceConfig(this.Profile).FirstOrDefault();
             if (webresourceConfig == null)
                 throw new Exception("Cannot find webresource section in spkl.json");
 
-            string rootPath = Path.Combine(config.filePath, webresourceConfig.root != null ? webresourceConfig.root : "");
+            string rootPath = Path.GetFullPath(Path.Combine(config.filePath, webresourceConfig.root ?? "")).TrimEnd('\\', '/');
+
+            var webresources = ServiceLocator.DirectoryService.Search(rootPath, "*.js|*.htm|*.html|*.css|*.xap|*.png|*.jpeg|*.jpg|*.gif|*.ico|*.xml|*.svg|*.resx|*.xsl|*.xslt");
+
+            if (webresources == null || webresources.Count == 0)
+                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.NO_WEBRESOURCES_FOUND, $"No webresources found in the folder '{rootPath}'");
+
+            // Get a list of all webresources!
+            var matchList = ServiceLocator.Queries.GetWebresources(ctx).ToDictionary(w => w.Name.ToLower().Replace(Prefix + (Prefix.EndsWith("_") ? "" : "_"), ""));
             foreach (var filename in webresources)
             {
                 _trace.WriteLine("Found '{0}'", filename);

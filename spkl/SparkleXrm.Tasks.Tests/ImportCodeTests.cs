@@ -300,7 +300,7 @@ namespace SparkleXrm.Tasks.Tests
             var task = new DownloadWebresourceConfigTask(crmSvc, trace);
             task.Prefix = "new_";
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
-                @"..\..\..");
+                @"..\..\..\Webresources");
 
             task.Execute(path);
         }

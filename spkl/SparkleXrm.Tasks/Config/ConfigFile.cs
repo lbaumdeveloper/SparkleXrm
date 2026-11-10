@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 
 namespace SparkleXrm.Tasks.Config
@@ -15,6 +14,9 @@ namespace SparkleXrm.Tasks.Config
         public List<PluginDeployConfig> plugins;
         public List<EarlyBoundTypeConfig> earlyboundtypes;
         public List<SolutionPackageConfig> solutions;
+
+        [JsonProperty("$schema")]
+        public string schema;
 
         [JsonIgnore]
         public string filePath;
@@ -56,12 +58,12 @@ namespace SparkleXrm.Tasks.Config
             }
             if (profile != null)
             {
-                config = solutions.Where(c => c.profile != null && c.profile.Split(',').Contains(profile)).ToArray();
+                config = solutions.Where(c => c.profile != null && c.profile.Replace(" ", "").Split(',').Contains(profile)).ToArray();
             }
             else
             {
                 // Default profile or empty
-                config = solutions.Where(c => c.profile == null || c.profile.Split(',').Contains("default") || String.IsNullOrWhiteSpace(c.profile)).ToArray();
+                config = solutions.Where(c => c.profile == null || c.profile.Replace(" ", "").Split(',').Contains("default") || String.IsNullOrWhiteSpace(c.profile)).ToArray();
             }
 
             return config;
@@ -152,53 +154,36 @@ namespace SparkleXrm.Tasks.Config
 
             if (extension == "") file = Path.Combine(file, "*.dll");
 
-            assemblies = ServiceLocator.DirectoryService.Search(this.filePath, file);
+            assemblies = ServiceLocator.DirectoryService.Glob(this.filePath, file);
             return assemblies;
         }
     }
 
     public class ConfigFileService : IConfigFileService
     {
+        /// <summary>
+        /// Loads the spkl.json given as a file path, or the spkl.json directly inside the given folder. Sub-folders are not searched.
+        /// </summary>
         public List<ConfigFile> FindConfig(string folder, bool raiseErrorIfNotFound = true)
         {
-            List<string> configfilePath = null;
-            // search for the config file - using path or absolute location
-            if (folder.EndsWith("spkl.json") && File.Exists(folder))
-            {
-                configfilePath = new List<string> { folder };
-            }
-            else
-            {
-                configfilePath = ServiceLocator.DirectoryService.Search(folder, "spkl.json");
-            }
+            var configPath = folder.EndsWith("spkl.json", StringComparison.OrdinalIgnoreCase)
+                ? folder
+                : Path.Combine(folder, "spkl.json");
 
-            if (raiseErrorIfNotFound && (configfilePath == null || configfilePath.Count == 0))
+            if (!File.Exists(configPath))
             {
-                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.CONFIG_NOTFOUND, String.Format("Cannot find spkl.json in at '{0}' - make sure it is in the same folder or sub-folder as spkl.exe or provide a [path]", folder));
-            }
-
-            var results = new List<ConfigFile>();
-
-            foreach (var configPath in configfilePath)
-            {
-                // Check valid path and this is not the nuget package folder
-                if (configPath != null && !Regex.IsMatch(configPath, @"packages\\spkl"))
+                if (raiseErrorIfNotFound)
                 {
-                    var config = Newtonsoft.Json.JsonConvert.DeserializeObject<ConfigFile>(File.ReadAllText(configPath));
-                    config.filePath = Path.GetDirectoryName(configPath);
-                    results.Add(config);
+                    throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.CONFIG_NOTFOUND,
+                        $"Cannot find '{configPath}'. Pass the folder that contains spkl.json, or the path of the spkl.json file.");
                 }
+
+                return new List<ConfigFile> { new ConfigFile { filePath = folder } };
             }
 
-            if (results.Count == 0)
-            {
-                results.Add(new ConfigFile
-                {
-                    filePath = folder
-                });
-            }
-
-            return results;
+            var config = Newtonsoft.Json.JsonConvert.DeserializeObject<ConfigFile>(File.ReadAllText(configPath));
+            config.filePath = Path.GetDirectoryName(Path.GetFullPath(configPath));
+            return new List<ConfigFile> { config };
         }
     }
 }

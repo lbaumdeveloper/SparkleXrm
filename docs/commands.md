@@ -7,7 +7,7 @@ spkl <task> [path] [connection-string] [/p:<profile>] [switches]
 | Argument | Meaning |
 |---|---|
 | `task` | One of the tasks below. |
-| `path` | Folder to work in. spkl searches it **and all sub-folders** for `spkl.json` files and runs the task once per file. Defaults to the current directory. Point it at the folder that holds your `spkl.json` (`Tooling\`) so it does not pick up other files. |
+| `path` | The folder that contains `spkl.json`, or the path of the `spkl.json` file itself. Sub-folders are not searched. Defaults to the current directory. |
 | `connection-string` | Optional. Without it spkl shows the console login (see [getting started](getting-started.md#6-connecting-to-dataverse)). Pass `""` for tasks that need no connection. A `Password=***` placeholder makes spkl prompt for the password. |
 | `/p:<profile>` | Only use `spkl.json` entries whose `profile` contains this name. Without it, entries with no profile or with `default` in their profile are used. See [profiles](spkl-json.md#profiles). |
 
@@ -71,7 +71,7 @@ Existing files are kept unless `/o` is passed.
 
 ### `get-webresources`
 
-Scans the spkl.json folder for local `*.js, *.htm, *.css, *.xap, *.png, *.jpeg, *.jpg, *.gif, *.ico, *.xml` files, matches them to web resources in the environment by name, and writes the matches into the `files` list of `spkl.json`. A backup of `spkl.json` is created first. Note that only the spkl.json folder is scanned, not `root`.
+Scans `webresources[].root` (and its sub-folders) for `*.js, *.htm, *.html, *.css, *.xap, *.png, *.jpeg, *.jpg, *.gif, *.ico, *.xml, *.svg, *.resx, *.xsl, *.xslt` files, matches them to web resources in the environment by name, and writes the matches into the `files` list of `spkl.json`. Requires `/s:<prefix>`. A backup of `spkl.json` is created first.
 
 ### `instrument`
 
@@ -108,4 +108,3 @@ All of these use the `solutions` section and `SolutionPackager.exe` from `Micros
 | Task | What it does |
 |---|---|
 | `whoami` | Prints the organization id and user id you are connected as. |
-| `compare` | Accepted but currently does nothing. |
