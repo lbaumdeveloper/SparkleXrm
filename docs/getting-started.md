@@ -72,6 +72,8 @@ All paths in `spkl.json` are relative to the folder that contains `spkl.json`, w
 
 Build the solution first. spkl deploys the DLLs that are already in `bin\Debug`; it does not build.
 
+`spkl.ps1` needs a PowerShell execution policy that allows local scripts, e.g. `RemoteSigned`.
+
 ### Terminal
 
 ```powershell
@@ -94,7 +96,7 @@ Build the solution first. spkl deploys the DLLs that are already in `bin\Debug`;
 |---|---|
 | Title | `spkl: deploy plugins` |
 | Command | `powershell.exe` |
-| Arguments | `-NoProfile -ExecutionPolicy Bypass -File "$(SolutionDir)Tooling\spkl.ps1" -Task plugins` |
+| Arguments | `& '$(SolutionDir)Tooling\spkl.ps1' -Task plugins` |
 | Initial directory | `$(SolutionDir)` |
 | Use Output window | unchecked (the login prompt needs a console) |
 

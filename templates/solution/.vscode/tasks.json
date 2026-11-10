@@ -1,5 +1,10 @@
 {
   "version": "2.0.0",
+  "options": {
+    "shell": {
+      "executable": "powershell.exe"
+    }
+  },
   "inputs": [
     {
       "id": "profile",
@@ -18,31 +23,31 @@
     {
       "label": "spkl: deploy plugins",
       "type": "shell",
-      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Tooling/spkl.ps1 -Task plugins -Profile ${input:profile}",
+      "command": "./Tooling/spkl.ps1 -Task plugins -Profile ${input:profile}",
       "problemMatcher": []
     },
     {
       "label": "spkl: deploy workflows",
       "type": "shell",
-      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Tooling/spkl.ps1 -Task workflow -Profile workflows",
+      "command": "./Tooling/spkl.ps1 -Task workflow -Profile workflows",
       "problemMatcher": []
     },
     {
       "label": "spkl: deploy webresources",
       "type": "shell",
-      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Tooling/spkl.ps1 -Task webresources",
+      "command": "./Tooling/spkl.ps1 -Task webresources",
       "problemMatcher": []
     },
     {
       "label": "spkl: download webresources",
       "type": "shell",
-      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Tooling/spkl.ps1 -Task download-webresources",
+      "command": "./Tooling/spkl.ps1 -Task download-webresources",
       "problemMatcher": []
     },
     {
       "label": "spkl: generate early-bound types",
       "type": "shell",
-      "command": "powershell -NoProfile -ExecutionPolicy Bypass -File Tooling/spkl.ps1 -Task earlybound",
+      "command": "./Tooling/spkl.ps1 -Task earlybound",
       "problemMatcher": []
     },
     {
