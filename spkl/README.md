@@ -1,3 +1,11 @@
-spkl - Simple, no fuss, Dynamics 365 Deployment Task Runner
+# spkl source
 
-See https://github.com/scottdurow/SparkleXrm/wiki/spkl for more information
+| Project | Content |
+|---|---|
+| `spkl` | Command line entry point and login |
+| `SparkleXrm.Tasks` | All tasks, `spkl.json` model and `CrmPluginRegistrationAttribute` |
+| `SparkleXrm.Tasks.Tests` | Unit and integration tests |
+| `CrmSvcUtilFilteringService` | CrmSvcUtil extension used by `earlybound` |
+| `TestPlugin`, `TestWorkflowActivity`, `TestPluginWorkflowCombined`, `Webresources` | Test inputs |
+
+Usage documentation: [`../docs`](../docs).

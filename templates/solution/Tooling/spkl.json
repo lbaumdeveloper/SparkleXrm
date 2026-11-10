@@ -1,0 +1,38 @@
+{
+  "plugins": [
+    {
+      "profile": "default,plugins",
+      "solution": "<SolutionUniqueName>",
+      "assemblypath": "..\\Plugins\\bin\\Debug\\<PluginsAssembly>.dll"
+    },
+    {
+      "profile": "default,actions",
+      "solution": "<SolutionUniqueName>",
+      "assemblypath": "..\\Actions\\bin\\Debug\\<ActionsAssembly>.dll"
+    },
+    {
+      "profile": "default,workflows",
+      "solution": "<SolutionUniqueName>",
+      "assemblypath": "..\\Workflows\\bin\\Debug\\<WorkflowsAssembly>.dll"
+    }
+  ],
+  "webresources": [
+    {
+      "profile": "default",
+      "solution": "<SolutionUniqueName>",
+      "root": "..\\Webresources\\",
+      "autodetect": "yes"
+    }
+  ],
+  "earlyboundtypes": [
+    {
+      "profile": "default",
+      "entities": "account,contact",
+      "generateOptionsetEnums": true,
+      "generateStateEnums": true,
+      "filename": "..\\Helper\\EarlyBoundTypes.cs",
+      "classNamespace": "<Namespace>.Helper",
+      "serviceContextName": "XrmSvc"
+    }
+  ]
+}
