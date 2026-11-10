@@ -47,6 +47,8 @@ namespace SparkleXrm.Tasks
 
         public List<Guid> DeployWebresources(OrganizationServiceContext ctx, ConfigFile config, WebresourceDeployConfig webresources)
         {
+            config.RequireSolution(webresources.solution, "webresources");
+
             var webresourceRoot = Path.Combine(config.filePath, "" + webresources.root);
 
             this.Solution = webresources.solution;

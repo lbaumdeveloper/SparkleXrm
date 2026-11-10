@@ -12,7 +12,7 @@
           "root": "Webresources/",
 
           /*
-          Optional - solution - Add webresources to a solution when deploying
+          Required - solution - Unique name of the solution the webresources are added to
           */
           "solution": "<SolutionUniqueName>",
 
@@ -47,6 +47,10 @@
             Create multiple entries for different profiles
             */
             "profile": "default,debug",
+            /*
+            Required - solution - Unique name of the solution the assembly, types and steps are added to
+            */
+            "solution": "<SolutionUniqueName>",
             "assemblypath": "bin\\Debug"
             /*
             Optional - defines the regex to use to detect a plugin or workflow activity when using a custom base class

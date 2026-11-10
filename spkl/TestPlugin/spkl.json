@@ -11,6 +11,7 @@
             "assemblypath": "bin\\**\\TestPlugin.dll"
         },
         {
+            "solution": "Test",
             "assemblypath": "bin\\Debug"
         }
     ],

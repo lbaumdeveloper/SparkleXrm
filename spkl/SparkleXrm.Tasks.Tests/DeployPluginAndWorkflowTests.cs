@@ -1,4 +1,5 @@
 ﻿using FakeItEasy;
+using Microsoft.Crm.Sdk.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
@@ -83,6 +84,11 @@ namespace SparkleXrm.Tasks.Tests
 
             A.CallTo(() => fakeService.Execute(A<OrganizationRequest>.Ignored)).ReturnsLazily((a) =>
             {
+                if (a.Arguments[0] is AddSolutionComponentRequest)
+                {
+                    return new AddSolutionComponentResponse();
+                }
+
                 var response = new RetrieveMultipleResponse();
                 var logicalName = ((a.Arguments[0] as RetrieveMultipleRequest).Query as Microsoft.Xrm.Sdk.Query.QueryExpression).EntityName;
                 switch (logicalName)

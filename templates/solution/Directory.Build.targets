@@ -1,0 +1,9 @@
+<Project>
+  <!-- Projects with <SpklRegistration>true</SpklRegistration> compile the shared spkl registration attribute. -->
+  <PropertyGroup>
+    <SpklAttributeFile>$(MSBuildThisFileDirectory)Tooling\CrmPluginRegistrationAttribute.cs</SpklAttributeFile>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(SpklRegistration)' == 'true' And Exists('$(SpklAttributeFile)')">
+    <Compile Include="$(SpklAttributeFile)" Link="CrmPluginRegistrationAttribute.cs" />
+  </ItemGroup>
+</Project>

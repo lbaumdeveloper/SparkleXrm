@@ -124,6 +124,10 @@ namespace SparkleXrm.Tasks.Tests
                     return response;
 
                 }
+                else if (request.GetType() == typeof(AddSolutionComponentRequest))
+                {
+                    return new AddSolutionComponentResponse();
+                }
                 else if (request.GetType() == typeof(PublishXmlRequest))
                 {
                     publishCount++;
@@ -156,6 +160,7 @@ namespace SparkleXrm.Tasks.Tests
             config.webresources = new List<WebresourceDeployConfig>();
             config.webresources.Add(new WebresourceDeployConfig
             {
+                solution = "Test",
                 files = new List<WebResourceFile>()
 
             });

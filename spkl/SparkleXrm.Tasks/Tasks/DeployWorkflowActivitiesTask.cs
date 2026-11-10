@@ -36,14 +36,17 @@ namespace SparkleXrm.Tasks
 
             foreach (var plugin in plugins)
             {
+                config.RequireSolution(plugin.solution, "plugins");
+            }
+
+            foreach (var plugin in plugins)
+            {
                 List<string> assemblies = config.GetAssemblies(plugin);
-                
-                var pluginRegistration = new PluginRegistraton(_service, ctx, _trace);
-                
-                if (!string.IsNullOrEmpty(plugin.solution))
+
+                var pluginRegistration = new PluginRegistraton(_service, ctx, _trace)
                 {
-                    pluginRegistration.SolutionUniqueName = plugin.solution;
-                }
+                    SolutionUniqueName = plugin.solution
+                };
 
                 foreach (var assemblyFilePath in assemblies)
                 {

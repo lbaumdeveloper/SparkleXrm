@@ -5,6 +5,7 @@
       "assemblypath": "bin\\**"
     },
     {
+      "solution": "Test",
       "assemblypath": "bin\\Debug"
     }
   ]

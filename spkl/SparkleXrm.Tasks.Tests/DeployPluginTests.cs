@@ -170,6 +170,25 @@ namespace SparkleXrm.Tasks.Tests
 
         [TestMethod]
         [TestCategory("Unit Tests")]
+        public void DeployWithoutSolutionThrows()
+        {
+            var config = new ConfigFile { filePath = Path.GetTempPath() };
+            var exceptionType = (SparkleTaskException.ExceptionTypes?)null;
+
+            try
+            {
+                config.RequireSolution(null, "plugins");
+            }
+            catch (SparkleTaskException ex)
+            {
+                exceptionType = ex.ExceptionType;
+            }
+
+            Assert.AreEqual(SparkleTaskException.ExceptionTypes.SOLUTION_REQUIRED, exceptionType);
+        }
+
+        [TestMethod]
+        [TestCategory("Unit Tests")]
         public void GetGetAssemblies()
         {
             #region Assemble
