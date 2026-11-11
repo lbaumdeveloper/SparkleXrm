@@ -1,8 +1,11 @@
 using Microsoft.Crm.Sdk.Messages;
-using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
 using SparkleXrm.Tasks;
-using SparkleXrmTask.Connection;
+using Microsoft.Xrm.Sdk.Client;
+using Microsoft.Crm.Sdk.Samples;
+using Microsoft.Crm.Services.Utility;
+using Microsoft.Xrm.Tooling.Connector;
+using SparkleXrmTask.XrmToolingCmdLine;
 using System;
 using System.IO;
 using System.Reflection;
@@ -98,14 +101,16 @@ namespace SparkleXrmTask
         {
             var trace = new TraceLogger();
 
-            if (arguments.Connection == null)
+            if (arguments.Connection == null && arguments.LegacyLogin)
             {
-                var interactive = new InteractiveConnection();
-                using (var client = interactive.Connect())
-                {
-                    arguments.Connection = interactive.ConnectionString;
-                    RunTask(arguments, client, trace);
-                }
+                RunWithLegacyLogin(arguments, trace);
+            }
+            else if (arguments.Connection == null)
+            {
+                var toolingConnector = new XrmToolingConnection();
+                var client = toolingConnector.Connect();
+                arguments.Connection = toolingConnector.ConnectionString;
+                RunTask(arguments, client, trace);
             }
             else if (arguments.Connection == "")
             {
@@ -121,18 +126,119 @@ namespace SparkleXrmTask
                     arguments.Connection = arguments.Connection.Replace(passwordMatch.Value, "Password=" + password);
                 }
 
-                ServiceClient.MaxConnectionTimeout = TimeSpan.FromHours(1);
-                using (var client = new ServiceClient(arguments.Connection))
+                CrmServiceClient.MaxConnectionTimeout = TimeSpan.FromHours(1);
+                using (var client = new CrmServiceClient(arguments.Connection))
                 {
                     if (!client.IsReady)
                     {
                         throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.AUTH_ERROR,
-                            $"Error connecting to Dataverse: {client.LastError}");
+                            $"Error connecting to the Organization Service: {client.LastCrmError}");
                     }
                     RunTask(arguments, client, trace);
                 }
             }
         }
+
+        /// <summary>
+        /// Console login for on-premises (AD / IFD) via discovery service and OrganizationServiceProxy.
+        /// </summary>
+        private static void RunWithLegacyLogin(CommandLineArgs arguments, ITrace trace)
+        {
+            Console.ForegroundColor = ConsoleColor.Blue;
+            Console.WriteLine("On-premises Login");
+            Console.ForegroundColor = ConsoleColor.Gray;
+
+            var config = new ServerConnection().GetServerConfiguration(arguments.IgnoreLocalPrincipal);
+            arguments.Connection = BuildConnectionString(config);
+
+            using (var serviceProxy = new OrganizationServiceProxy(config.OrganizationUri, config.HomeRealmUri, config.Credentials, config.DeviceCredentials))
+            {
+                serviceProxy.EnableProxyTypes();
+                serviceProxy.Timeout = TimeSpan.FromHours(1);
+                RunTask(arguments, serviceProxy, trace);
+            }
+        }
+
+        private static string BuildConnectionString(ServerConnection.Configuration config)
+        {
+            //string onlineRegion, organisationName;
+            //bool isOnPrem;
+            //Utilities.GetOrgnameAndOnlineRegionFromServiceUri(config.OrganizationUri, out onlineRegion, out organisationName, out isOnPrem);
+            string connectionString;
+
+            // On prem connection
+            // AuthType = AD; Url = http://contoso:8080/Test;
+
+            // AuthType=AD;Url=http://contoso:8080/Test; Domain=CONTOSO; Username=jsmith; Password=passcode
+
+            // Office 365
+            // AuthType = Office365; Username = jsmith@contoso.onmicrosoft.com; Password = passcode; Url = https://contoso.crm.dynamics.com
+
+            // IFD
+            // AuthType=IFD;Url=http://contoso:8080/Test; HomeRealmUri=https://server-1.server.com/adfs/services/trust/mex/;Domain=CONTOSO; Username=jsmith; Password=passcode
+
+            switch (config.EndpointType)
+            {
+                case AuthenticationProviderType.ActiveDirectory:
+                    connectionString = String.Format("AuthType=AD;Url={0}", config.OrganizationUri);
+
+                    break;
+
+                case AuthenticationProviderType.Federation:
+                    connectionString = String.Format("AuthType=IFD;Url={0}", config.OrganizationUri);
+                    break;
+
+                case AuthenticationProviderType.OnlineFederation:
+                    connectionString = String.Format("AuthType=Office365;Url={0}", config.OrganizationUri);
+                    break;
+
+                default:
+                    throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.AUTH_ERROR, String.Format("Unsupported Endpoint Type {0}", config.EndpointType.ToString()));
+            }
+
+            if (config.Credentials != null && config.Credentials.Windows != null)
+            {
+                if (!String.IsNullOrEmpty(config.Credentials.Windows.ClientCredential.Domain))
+                {
+                    connectionString += ";DOMAIN=" + config.Credentials.Windows.ClientCredential.Domain;
+                }
+
+                if (!String.IsNullOrEmpty(config.Credentials.Windows.ClientCredential.UserName))
+                {
+                    connectionString += ";Username=" + config.Credentials.Windows.ClientCredential.UserName;
+                }
+
+                if (!String.IsNullOrEmpty(config.Credentials.Windows.ClientCredential.Password))
+                {
+                    connectionString += ";Password=" + config.Credentials.Windows.ClientCredential.Password;
+                }
+                else if (config.Credentials.Windows.ClientCredential.SecurePassword != null && config.Credentials.Windows.ClientCredential.SecurePassword.Length > 0)
+                {
+                    var password = new System.Net.NetworkCredential(string.Empty, config.Credentials.Windows.ClientCredential.SecurePassword).Password;
+                    connectionString += ";Password=" + password;
+                }
+            }
+
+            if (config.Credentials != null)
+            {
+                if (!String.IsNullOrEmpty(config.Credentials.UserName.UserName))
+                {
+                    connectionString += ";Username=" + config.Credentials.UserName.UserName;
+                }
+                if (!String.IsNullOrEmpty(config.Credentials.UserName.Password))
+                {
+                    connectionString += ";Password=" + config.Credentials.UserName.Password;
+                }
+            }
+
+            if (config.HomeRealmUri != null)
+            {
+                connectionString += ";HomeRealmUri=" + config.HomeRealmUri.ToString();
+            }
+
+            return connectionString;
+        }
+
 
         private static void RunTask(CommandLineArgs arguments, IOrganizationService service, ITrace trace)
         {

@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace SparkleXrmTask
 {
     /// <summary>
-    /// Arguments of the spkl command line: spkl task [path] [connection-string] [profile] [/p:profile] [/s:prefix] [/o] [/e] [/w]
+    /// Arguments of the spkl command line: spkl task [path] [connection-string] [profile] [/p:profile] [/s:prefix] [/o] [/e] [/w] [/l] [/i]
     /// </summary>
     public class CommandLineArgs
     {
@@ -29,7 +29,7 @@ Tasks:
 
 Arguments:
   path                   Folder that contains spkl.json, or the spkl.json file. Defaults to the current directory.
-  connection-string      Dataverse connection string. Without it, spkl shows an interactive login. """" = no connection.
+  connection-string      Connection string. Without it, spkl shows an interactive login. """" = no connection.
 
 Switches:
   /p:<profile>           Only use spkl.json entries with this profile
@@ -37,6 +37,8 @@ Switches:
   /o                     download-webresources: overwrite existing files
   /e                     plugins: register assemblies and types but no steps
   /w                     Wait for a key press before exiting
+  /l                     On-premises login (AD / IFD) via the discovery service
+  /i                     With /l: ignore the logged-in Windows user and ask for credentials
   /?                     Show this help
 ";
 
@@ -50,6 +52,8 @@ Switches:
         public bool Overwrite { get; set; }
         public bool ExcludePluginSteps { get; set; }
         public bool WaitForKey { get; set; }
+        public bool LegacyLogin { get; set; }
+        public bool IgnoreLocalPrincipal { get; set; }
         public bool Help { get; set; }
 
         /// <summary>
@@ -86,6 +90,12 @@ Switches:
                         break;
                     case "w":
                         result.WaitForKey = true;
+                        break;
+                    case "l":
+                        result.LegacyLogin = true;
+                        break;
+                    case "i":
+                        result.IgnoreLocalPrincipal = true;
                         break;
                     case "?":
                     case "h":

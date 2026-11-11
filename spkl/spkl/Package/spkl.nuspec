@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>spkl</id>
@@ -29,7 +29,7 @@
     <file src="spkl\instrument-plugin-code.bat" target="content\spkl\instrument-plugin-code.bat" />
     <file src="spkl\download-webresources.bat" target="content\spkl\download-webresources.bat" />
     <file src="spkl.json" target="content\spkl.json" />
-    <file src="..\bin\Release\net8.0\publish\**\*" target="tools" />
+    <file src="..\bin\Release\net48\**\*" target="tools" />
     <file src="..\..\CrmSvcUtilFilteringService\bin\Release\spkl.CrmSvcUtilExtensions.dll" target="tools\spkl.CrmSvcUtilExtensions.dll" />
   </files>
 </package>

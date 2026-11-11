@@ -25,8 +25,8 @@ Install-Package spkl -ProjectName Tooling      # once, only in the Tooling proje
 
 ## Requirements
 
-- Windows with the .NET 8 runtime
-- Plugin and workflow assemblies built for .NET Framework 4.6.2 or later (Dataverse requirement)
+- Windows with .NET Framework 4.8
+- Dynamics 365 v9 on-premises (AD / IFD) or online
 - A Dataverse / Dynamics 365 environment
 
 ## Repository layout

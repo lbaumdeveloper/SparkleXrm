@@ -51,14 +51,16 @@ namespace SparkleXrm.Tasks.Tests
 
             var assemblyPath = new DirectoryService().SimpleSearch(testAssemblyPathRoot, "TestWorkflowActivity.dll");
 
-            using var context = Reflection.CreateContext(assemblyPath);
-            var thisAssembly = context.LoadFromAssemblyPath(assemblyPath);
-            var pluginTypes = Reflection.GetTypesInheritingFrom(thisAssembly, "System.Activities.CodeActivity");
-            var workflowActivityCustomBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivityInheritingFromWorkflowActivityBase"), typeof(CrmPluginRegistrationAttribute).Name);
-            Assert.AreEqual(1, workflowActivityCustomBaseClass.Count(), "Custom Base Class Metadata");
+            using (var context = Reflection.CreateContext(assemblyPath))
+            {
+                var thisAssembly = context.LoadFromAssemblyPath(assemblyPath);
+                var pluginTypes = Reflection.GetTypesInheritingFrom(thisAssembly, "System.Activities.CodeActivity");
+                var workflowActivityCustomBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivityInheritingFromWorkflowActivityBase"), typeof(CrmPluginRegistrationAttribute).Name);
+                Assert.AreEqual(1, workflowActivityCustomBaseClass.Count(), "Custom Base Class Metadata");
 
-            var codeActivityBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivity"), typeof(CrmPluginRegistrationAttribute).Name);
-            Assert.AreEqual(1, codeActivityBaseClass.Count(), "CodeActiviy Base Class Metadata");
+                var codeActivityBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivity"), typeof(CrmPluginRegistrationAttribute).Name);
+                Assert.AreEqual(1, codeActivityBaseClass.Count(), "CodeActiviy Base Class Metadata");
+            }
         }
 
         [TestMethod]
@@ -70,14 +72,16 @@ namespace SparkleXrm.Tasks.Tests
 
             var assemblyPath = new DirectoryService().SimpleSearch(testAssemblyPathRoot, "TestPlugin.dll");
 
-            using var context = Reflection.CreateContext(assemblyPath);
-            var thisAssembly = context.LoadFromAssemblyPath(assemblyPath);
-            var pluginTypes = Reflection.GetTypesImplementingInterface(thisAssembly, typeof(Microsoft.Xrm.Sdk.IPlugin).FullName);
-            var attributes = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "PreValidateaccountUpdate"), typeof(CrmPluginRegistrationAttribute).Name);
-            var pluginStep = (CrmPluginRegistrationAttribute)attributes.Where(s => s.ConstructorArguments[5].Value.ToString() == "Create Step").First().CreateFromData();
-            Assert.AreEqual("Description", pluginStep.Description);
-            Assert.AreEqual("Some config", pluginStep.UnSecureConfiguration);
-            Assert.AreEqual(true, pluginStep.DeleteAsyncOperation);
+            using (var context = Reflection.CreateContext(assemblyPath))
+            {
+                var thisAssembly = context.LoadFromAssemblyPath(assemblyPath);
+                var pluginTypes = Reflection.GetTypesImplementingInterface(thisAssembly, typeof(Microsoft.Xrm.Sdk.IPlugin).FullName);
+                var attributes = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "PreValidateaccountUpdate"), typeof(CrmPluginRegistrationAttribute).Name);
+                var pluginStep = (CrmPluginRegistrationAttribute)attributes.Where(s => s.ConstructorArguments[5].Value.ToString() == "Create Step").First().CreateFromData();
+                Assert.AreEqual("Description", pluginStep.Description);
+                Assert.AreEqual("Some config", pluginStep.UnSecureConfiguration);
+                Assert.AreEqual(true, pluginStep.DeleteAsyncOperation);
+            }
         }
 
         [TestMethod]

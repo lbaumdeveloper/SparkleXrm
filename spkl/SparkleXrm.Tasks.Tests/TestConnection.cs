@@ -1,12 +1,12 @@
 using System;
 using Microsoft.Crm.Sdk.Messages;
-using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Xrm.Tooling.Connector;
 
 namespace SparkleXrm.Tasks.Tests
 {
     /// <summary>
-    /// Creates the Dataverse connection for integration tests from the SPKL_TEST_CONNECTION environment variable.
+    /// Creates the connection for integration tests from the SPKL_TEST_CONNECTION environment variable.
     /// </summary>
     public static class TestConnection
     {
@@ -19,23 +19,23 @@ namespace SparkleXrm.Tasks.Tests
                 var connectionString = Environment.GetEnvironmentVariable(VariableName);
                 if (string.IsNullOrWhiteSpace(connectionString))
                 {
-                    Assert.Inconclusive($"Set {VariableName} to a Dataverse connection string to run integration tests.");
+                    Assert.Inconclusive($"Set {VariableName} to a connection string to run integration tests.");
                 }
                 return connectionString;
             }
         }
 
-        public static ServiceClient Create()
+        public static CrmServiceClient Create()
         {
-            var client = new ServiceClient(ConnectionString);
+            var client = new CrmServiceClient(ConnectionString);
             if (!client.IsReady)
             {
-                throw new InvalidOperationException(client.LastError);
+                throw new InvalidOperationException(client.LastCrmError);
             }
             return client;
         }
 
-        public static Guid GetMyUserId(this ServiceClient client)
+        public static Guid GetMyUserId(this CrmServiceClient client)
         {
             return ((WhoAmIResponse)client.Execute(new WhoAmIRequest())).UserId;
         }
