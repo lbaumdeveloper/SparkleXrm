@@ -13,12 +13,16 @@ Optional connection string. Defaults to $env:SPKL_CONNECTION; when empty spkl sh
 
 .PARAMETER Path
 Folder spkl works in. Defaults to this folder, which holds spkl.json. The instrument task needs the plugin project folder instead.
+
+.PARAMETER DryRun
+plugins, workflow and webresources only: show what would be created, updated and deleted without writing anything.
 #>
 param(
     [Parameter(Mandatory = $true)][string]$Task,
     [string]$Profile,
     [string]$Connection = $env:SPKL_CONNECTION,
-    [string]$Path = $PSScriptRoot
+    [string]$Path = $PSScriptRoot,
+    [switch]$DryRun
 )
 
 $ErrorActionPreference = 'Stop'
@@ -50,6 +54,7 @@ Write-Host "Using $spkl"
 $arguments = @($Task, (Resolve-Path $Path).Path)
 if ($Connection) { $arguments += $Connection }
 if ($Profile) { $arguments += "/p:$Profile" }
+if ($DryRun) { $arguments += '/dry-run' }
 
 & $spkl @arguments
 exit $LASTEXITCODE

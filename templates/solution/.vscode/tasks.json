@@ -17,6 +17,17 @@
         "workflows"
       ],
       "default": "default"
+    },
+    {
+      "id": "deployTask",
+      "type": "pickString",
+      "description": "spkl task to dry-run",
+      "options": [
+        "plugins",
+        "workflow",
+        "webresources"
+      ],
+      "default": "plugins"
     }
   ],
   "tasks": [
@@ -36,6 +47,12 @@
       "label": "spkl: deploy webresources",
       "type": "shell",
       "command": "./Tooling/spkl.ps1 -Task webresources",
+      "problemMatcher": []
+    },
+    {
+      "label": "spkl: dry run",
+      "type": "shell",
+      "command": "./Tooling/spkl.ps1 -Task ${input:deployTask} -Profile ${input:profile} -DryRun",
       "problemMatcher": []
     },
     {
