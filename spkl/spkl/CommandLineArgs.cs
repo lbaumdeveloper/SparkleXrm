@@ -5,7 +5,7 @@ using System.Text.RegularExpressions;
 namespace SparkleXrmTask
 {
     /// <summary>
-    /// Arguments of the spkl command line: spkl task [path] [connection-string] [profile] [/p:profile] [/s:prefix] [/o] [/e] [/w] [/l] [/i]
+    /// Arguments of the spkl command line: spkl task [path] [connection-string] [profile] [/p:profile] [/s:prefix] [/o] [/e] [/d] [/w] [/l] [/i]
     /// </summary>
     public class CommandLineArgs
     {
@@ -36,13 +36,17 @@ Switches:
   /s:<prefix>            get-webresources: publisher prefix, e.g. /s:new
   /o                     download-webresources: overwrite existing files
   /e                     plugins: register assemblies and types but no steps
+  /d, /dry-run           plugins, workflow, webresources: show what would be created, updated
+                         and deleted without changing anything
   /w                     Wait for a key press before exiting
   /l                     On-premises login (AD / IFD) via the discovery service
   /i                     With /l: ignore the logged-in Windows user and ask for credentials
   /?                     Show this help
 ";
 
-        private static readonly Regex SwitchPattern = new Regex(@"^[/-](?<name>[a-z?])(:(?<value>.*))?$", RegexOptions.IgnoreCase);
+        private static readonly Regex SwitchPattern = new Regex(@"^(/|-{1,2})(?<name>\?|[a-z][a-z-]*)(:(?<value>.*))?$", RegexOptions.IgnoreCase);
+
+        public static readonly string[] DryRunTasks = { "plugins", "workflow", "webresources" };
 
         public string Task { get; set; }
         public string Path { get; set; }
@@ -51,6 +55,7 @@ Switches:
         public string Prefix { get; set; }
         public bool Overwrite { get; set; }
         public bool ExcludePluginSteps { get; set; }
+        public bool DryRun { get; set; }
         public bool WaitForKey { get; set; }
         public bool LegacyLogin { get; set; }
         public bool IgnoreLocalPrincipal { get; set; }
@@ -88,6 +93,10 @@ Switches:
                     case "e":
                         result.ExcludePluginSteps = true;
                         break;
+                    case "d":
+                    case "dry-run":
+                        result.DryRun = true;
+                        break;
                     case "w":
                         result.WaitForKey = true;
                         break;
@@ -119,6 +128,18 @@ Switches:
             if (!result.Help && string.IsNullOrWhiteSpace(result.Task))
             {
                 throw new ArgumentException("No task given.");
+            }
+
+            if (result.DryRun && !result.Help)
+            {
+                if (!DryRunTasks.Contains(result.Task.ToLowerInvariant()))
+                {
+                    throw new ArgumentException($"/dry-run is supported for {string.Join(", ", DryRunTasks)} only.");
+                }
+                if (result.Connection == "")
+                {
+                    throw new ArgumentException("/dry-run needs a connection to read the current registrations.");
+                }
             }
 
             return result;

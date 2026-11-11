@@ -16,6 +16,7 @@ Switches:
 | Switch | Meaning |
 |---|---|
 | `/e` | `plugins` only: register assemblies and types but not steps. |
+| `/d`, `/dry-run` | `plugins`, `workflow` and `webresources` only: show what would be created, updated and deleted without writing anything. See [dry run](#dry-run). |
 | `/o` | `download-webresources` only: overwrite existing local files. |
 | `/s:<prefix>` | `get-webresources` only: publisher prefix to strip when matching files, e.g. `/s:new`. |
 | `/w` | Wait for a key press before exiting. |
@@ -23,7 +24,27 @@ Switches:
 | `/i` | With `/l`: ignore the logged-in Windows user and ask for credentials. |
 | `/?` | Show the help. |
 
-With `Tooling\spkl.ps1` you only pass `-Task`, `-Profile` and optionally `-Connection` or `-Path`; it fills in the rest.
+With `Tooling\spkl.ps1` you only pass `-Task`, `-Profile` and optionally `-Connection`, `-Path` or `-DryRun`; it fills in the rest.
+
+### Dry run
+
+`/dry-run` (or `-DryRun` on `spkl.ps1`) connects and reads the current registrations as usual, but every write is only printed:
+
+```
+[dry-run] Would update pluginassembly 'Contoso.Plugins' 3f2c...
+[dry-run] Would create sdkmessageprocessingstep 'Contoso.Plugins.AccountPreCreate: Create of account'
+[dry-run] Would delete sdkmessageprocessingstep 9a71...
+[dry-run] Would execute AddSolutionComponent (ComponentId=..., ComponentType=92, SolutionUniqueName=Contoso)
+[dry-run] 1 create(s), 1 update(s), 1 delete(s), 1 other request(s). Nothing was written.
+```
+
+Only requests that read (`Retrieve*`, `WhoAmI`) reach the server. Everything else, including adding to a solution and publishing, is skipped.
+
+Limits:
+
+- Components that would be created don't exist yet, so their children are listed as new too. For example, a new plugin type lists all its steps as creates.
+- Unchanged webresources are skipped as in a real deploy, so they produce no `[dry-run]` line.
+- A create or update can still fail on the server for reasons a dry run can't see, e.g. a missing privilege or an invalid filtering attribute.
 
 ---
 

@@ -255,6 +255,14 @@ namespace SparkleXrmTask
 
             BaseTask task = null;
             string command = arguments.Task.ToLower();
+
+            DryRunOrganizationService dryRunService = null;
+            if (arguments.DryRun)
+            {
+                trace.WriteLine("Dry run: reading from the server, nothing will be written.");
+                dryRunService = new DryRunOrganizationService(service, trace);
+                service = dryRunService;
+            }
             switch (command)
             {
                 case "whoami":
@@ -345,6 +353,7 @@ namespace SparkleXrmTask
                 if (arguments.Profile != null)
                     task.Profile = arguments.Profile;
                 task.Execute(arguments.Path);
+                dryRunService?.WriteSummary();
             }
             else
                 throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.NO_TASK_SUPPLIED, String.Format("Task '{0}' not recognised. Please consult help!", arguments.Task.ToLower()));

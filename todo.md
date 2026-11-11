@@ -16,7 +16,7 @@
 - [ ] Replace the `.bat` scripts in the NuGet package with `spkl.ps1`
 - [x] `compare`: removed
 - [x] Allow spaces in `profile` lists of the `solutions` section
-- [ ] Add a `--dry-run` that lists what would be created, updated and deleted
+- [x] Add `/dry-run` that lists what would be created, updated and deleted
 - [ ] Find `CrmSvcUtil.exe` / `SolutionPackager.exe` without scanning the whole NuGet cache
 - [x] JSON schema for `spkl.json` for editor completion
 

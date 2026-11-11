@@ -82,6 +82,7 @@ Build the solution first. spkl deploys the DLLs that are already in `bin\Debug`;
 .\Tooling\spkl.ps1 -Task workflow -Profile workflows
 .\Tooling\spkl.ps1 -Task webresources
 .\Tooling\spkl.ps1 -Task earlybound
+.\Tooling\spkl.ps1 -Task plugins -DryRun            # only show what would change
 ```
 
 ### VS Code
