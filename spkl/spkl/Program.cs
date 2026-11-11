@@ -1,26 +1,19 @@
-﻿using CmdLine;
 using Microsoft.Crm.Sdk.Messages;
-using Microsoft.Crm.Sdk.Samples;
+using Microsoft.PowerPlatform.Dataverse.Client;
 using Microsoft.Xrm.Sdk;
-using Microsoft.Xrm.Sdk.Client;
-using Microsoft.Xrm.Tooling.Connector;
 using SparkleXrm.Tasks;
-using SparkleXrmTask.XrmToolingCmdLine;
+using SparkleXrmTask.Connection;
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Reflection;
 using System.ServiceModel;
-using System.Text;
 using System.Text.RegularExpressions;
-using System.Threading.Tasks;
 
 namespace SparkleXrmTask
 {
     internal class Program
     {
-        private static void Main(string[] args)
+        private static int Main(string[] args)
         {
             Console.ForegroundColor = ConsoleColor.DarkYellow;
             Console.WriteLine(@"
@@ -31,272 +24,114 @@ namespace SparkleXrmTask
 /____  >|   __/|__|_ \____/
      \/ |__|        \/     ");
 
-            Console.WriteLine("spkl Task Runner v" + Assembly.GetEntryAssembly().GetName().Version + "\tTasks v" + Assembly.GetAssembly(typeof(SparkleXrm.Tasks.BaseTask)).GetName().Version);
-
+            Console.WriteLine("spkl Task Runner v" + Assembly.GetEntryAssembly().GetName().Version + "\tTasks v" + typeof(BaseTask).Assembly.GetName().Version);
             Console.ForegroundColor = ConsoleColor.Gray;
-            bool error = false;
+
             CommandLineArgs arguments = null;
+            var exitCode = 0;
             try
             {
-                arguments = CommandLine.Parse<CommandLineArgs>();
-
-                Run(arguments);
+                arguments = CommandLineArgs.Parse(args);
+                if (arguments.Help)
+                {
+                    Console.WriteLine(CommandLineArgs.HelpText);
+                }
+                else
+                {
+                    Run(arguments);
+                }
             }
-            catch (CommandLineException exception)
+            catch (ArgumentException ex)
             {
-                Console.WriteLine(exception.ArgumentHelp.Message);
-                Console.WriteLine(exception.ArgumentHelp.GetHelpText(Console.BufferWidth));
+                Console.WriteLine(ex.Message);
+                Console.WriteLine(CommandLineArgs.HelpText);
+                exitCode = 1;
             }
             catch (SparkleTaskException ex)
             {
                 Console.WriteLine(ex.Message);
-                error = true;
+                exitCode = 1;
             }
-            catch (FaultException<Microsoft.Xrm.Sdk.OrganizationServiceFault> ex)
+            catch (Exception ex)
             {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("The application terminated with an error.");
-                Console.WriteLine("Timestamp: {0}", ex.Detail.Timestamp);
-                Console.WriteLine("Code: {0}", ex.Detail.ErrorCode);
-                Console.WriteLine("Message: {0}", ex.Detail.Message);
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(ex.StackTrace);
+                WriteError(ex);
+                exitCode = 1;
+            }
 
-                if (!string.IsNullOrEmpty(ex.Detail.TraceText))
-                {
-                    Console.WriteLine("Plugin Trace: {0}", ex.Detail.TraceText);
-                }
-                if (ex.Detail.InnerFault != null)
-                {
-                    Console.WriteLine("Inner Fault: {0}",
-                        null == ex.Detail.InnerFault ? "No Inner Fault" : "Has Inner Fault");
-                }
-                error = true;
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-            catch (System.TimeoutException ex)
-            {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("The application terminated with an error.");
-                Console.WriteLine("Message: {0}", ex.Message);
-                Console.WriteLine("Stack Trace: {0}", ex.StackTrace);
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine("Inner Fault: {0}",
-                    null == ex.InnerException.Message ? "No Inner Fault" : ex.InnerException.Message);
-                }
-                error = true;
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-            catch (System.Exception ex)
-            {
-                Console.ForegroundColor = ConsoleColor.White;
-                Console.WriteLine("The application terminated with an error.");
-                Console.WriteLine(ex.Message);
-                Console.ForegroundColor = ConsoleColor.DarkGray;
-                Console.WriteLine(ex.StackTrace);
-
-                // Display the details of the inner exception.
-                if (ex.InnerException != null)
-                {
-                    Console.WriteLine(ex.InnerException.Message);
-
-                    FaultException<Microsoft.Xrm.Sdk.OrganizationServiceFault> fe = ex.InnerException
-                        as FaultException<Microsoft.Xrm.Sdk.OrganizationServiceFault>;
-                    if (fe != null)
-                    {
-                        Console.WriteLine("Timestamp: {0}", fe.Detail.Timestamp);
-                        Console.WriteLine("Code: {0}", fe.Detail.ErrorCode);
-                        Console.WriteLine("Message: {0}", fe.Detail.Message);
-                        if (!string.IsNullOrEmpty(fe.Detail.TraceText))
-                        {
-                            Console.WriteLine("Plugin Trace: {0}", fe.Detail.TraceText);
-                        }
-                        if (fe.Detail.InnerFault != null)
-                        {
-                            Console.WriteLine("Inner Fault: {0}",
-                                null == fe.Detail.InnerFault ? "No Inner Fault" : "Has Inner Fault");
-                        }
-                    }
-                }
-                error = true;
-                Console.ForegroundColor = ConsoleColor.White;
-            }
-            finally
-            {
-                if (error)
-                {
-                    Environment.ExitCode = 1;
-                }
-            }
-            if (arguments != null && arguments.WaitForKey == true)
+            if (arguments != null && arguments.WaitForKey)
             {
                 Console.ForegroundColor = ConsoleColor.White;
                 Console.WriteLine("Press any key...");
                 Console.ReadKey();
             }
             Console.ForegroundColor = ConsoleColor.Gray;
+            return exitCode;
+        }
+
+        private static void WriteError(Exception ex)
+        {
+            Console.ForegroundColor = ConsoleColor.White;
+            Console.WriteLine("The application terminated with an error.");
+            Console.WriteLine(ex.Message);
+            Console.ForegroundColor = ConsoleColor.DarkGray;
+            Console.WriteLine(ex.StackTrace);
+
+            var fault = (ex as FaultException<OrganizationServiceFault>) ?? (ex.InnerException as FaultException<OrganizationServiceFault>);
+            if (fault != null)
+            {
+                Console.WriteLine("Timestamp: {0}", fault.Detail.Timestamp);
+                Console.WriteLine("Code: {0}", fault.Detail.ErrorCode);
+                Console.WriteLine("Message: {0}", fault.Detail.Message);
+                if (!string.IsNullOrEmpty(fault.Detail.TraceText))
+                {
+                    Console.WriteLine("Plugin Trace: {0}", fault.Detail.TraceText);
+                }
+            }
+            else if (ex.InnerException != null)
+            {
+                Console.WriteLine(ex.InnerException.Message);
+            }
+            Console.ForegroundColor = ConsoleColor.White;
         }
 
         private static void Run(CommandLineArgs arguments)
         {
-            try
-            {
-                if (arguments.Task.Length < 3)
-                {
-                    throw new CommandLineException("Invalid Command");
-                }
-                var trace = new TraceLogger();
+            var trace = new TraceLogger();
 
-                if (arguments.Connection == null)
+            if (arguments.Connection == null)
+            {
+                var interactive = new InteractiveConnection();
+                using (var client = interactive.Connect())
                 {
-                    if (arguments.LegacyLogin)
+                    arguments.Connection = interactive.ConnectionString;
+                    RunTask(arguments, client, trace);
+                }
+            }
+            else if (arguments.Connection == "")
+            {
+                RunTask(arguments, null, trace);
+            }
+            else
+            {
+                var passwordMatch = Regex.Match(arguments.Connection, "Password=[*]+", RegexOptions.IgnoreCase);
+                if (passwordMatch.Success)
+                {
+                    Console.Write("Password:");
+                    var password = ConsoleEx.ReadPassword('*');
+                    arguments.Connection = arguments.Connection.Replace(passwordMatch.Value, "Password=" + password);
+                }
+
+                ServiceClient.MaxConnectionTimeout = TimeSpan.FromHours(1);
+                using (var client = new ServiceClient(arguments.Connection))
+                {
+                    if (!client.IsReady)
                     {
-                        Console.ForegroundColor = ConsoleColor.Blue;
-                        Console.Write("On-premises/Legacy Login");
-                        Console.ForegroundColor = ConsoleColor.Gray;
-                        // This login code will not work with the latest versions of CDS
-                        // No Connection is supplied to ask for connection on command line
-                        ServerConnection serverConnect = new ServerConnection();
-                        ServerConnection.Configuration config = serverConnect.GetServerConfiguration(arguments.IgnoreLocalPrincipal);
-
-                        arguments.Connection = BuildConnectionString(config);
-
-                        using (var serviceProxy = new OrganizationServiceProxy(config.OrganizationUri, config.HomeRealmUri, config.Credentials, config.DeviceCredentials))
-                        {
-                            // This statement is required to enable early-bound type support.
-                            serviceProxy.EnableProxyTypes();
-                            serviceProxy.Timeout = new TimeSpan(1, 0, 0);
-                            RunTask(arguments, serviceProxy, trace);
-                        }
+                        throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.AUTH_ERROR,
+                            $"Error connecting to Dataverse: {client.LastError}");
                     }
-                    else
-                    {
-                        var toolingConnector = new XrmToolingConnection();
-                        var client = toolingConnector.Connect();
-                        arguments.Connection = toolingConnector.ConnectionString;
-                        RunTask(arguments, client, trace);
-                    }
-                }
-                else if (arguments.Connection == "")
-                {
-                    // Support for tasks that require no connection string such as pack
-                    RunTask(arguments, null, trace);
-                }
-                else
-                {
-                    // Does the connection contain a password prompt?
-                    var passwordMatch = Regex.Match(arguments.Connection, "Password=[*]+", RegexOptions.IgnoreCase);
-                    if (passwordMatch.Success)
-                    {
-                        // Prompt for password
-                        Console.WriteLine("Password required for connection {0}", arguments.Connection);
-                        Console.Write("Password:");
-                        var password = ConsoleEx.ReadPassword('*');
-                        arguments.Connection = arguments.Connection.Replace(passwordMatch.Value, "Password=" + password);
-                    }
-                    CrmServiceClient.MaxConnectionTimeout = new TimeSpan(1, 0, 0);
-                    using (var serviceProxy = new CrmServiceClient(arguments.Connection))
-                    {
-                        if (!serviceProxy.IsReady)
-                        {
-                            throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.AUTH_ERROR, String.Format("Error connecting to the Organization Service: {0}", serviceProxy.LastCrmError));
-                        }
-
-                        if (!serviceProxy.IsReady)
-                        {
-                            trace.WriteLine("Not Ready {0} {1}", serviceProxy.LastCrmError, serviceProxy.LastCrmException);
-                        }
-
-                        RunTask(arguments, serviceProxy, trace);
-                    }
+                    RunTask(arguments, client, trace);
                 }
             }
-            catch (CommandLineException exception)
-            {
-                Console.WriteLine(exception.ArgumentHelp.Message);
-                Console.WriteLine(exception.ArgumentHelp.GetHelpText(Console.BufferWidth));
-            }
-        }
-
-        private static string BuildConnectionString(ServerConnection.Configuration config)
-        {
-            //string onlineRegion, organisationName;
-            //bool isOnPrem;
-            //Utilities.GetOrgnameAndOnlineRegionFromServiceUri(config.OrganizationUri, out onlineRegion, out organisationName, out isOnPrem);
-            string connectionString;
-
-            // On prem connection
-            // AuthType = AD; Url = http://contoso:8080/Test;
-
-            // AuthType=AD;Url=http://contoso:8080/Test; Domain=CONTOSO; Username=jsmith; Password=passcode
-
-            // Office 365
-            // AuthType = Office365; Username = jsmith@contoso.onmicrosoft.com; Password = passcode; Url = https://contoso.crm.dynamics.com
-
-            // IFD
-            // AuthType=IFD;Url=http://contoso:8080/Test; HomeRealmUri=https://server-1.server.com/adfs/services/trust/mex/;Domain=CONTOSO; Username=jsmith; Password=passcode
-
-            switch (config.EndpointType)
-            {
-                case AuthenticationProviderType.ActiveDirectory:
-                    connectionString = String.Format("AuthType=AD;Url={0}", config.OrganizationUri);
-
-                    break;
-
-                case AuthenticationProviderType.Federation:
-                    connectionString = String.Format("AuthType=IFD;Url={0}", config.OrganizationUri);
-                    break;
-
-                case AuthenticationProviderType.OnlineFederation:
-                    connectionString = String.Format("AuthType=Office365;Url={0}", config.OrganizationUri);
-                    break;
-
-                default:
-                    throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.AUTH_ERROR, String.Format("Unsupported Endpoint Type {0}", config.EndpointType.ToString()));
-            }
-
-            if (config.Credentials != null && config.Credentials.Windows != null)
-            {
-                if (!String.IsNullOrEmpty(config.Credentials.Windows.ClientCredential.Domain))
-                {
-                    connectionString += ";DOMAIN=" + config.Credentials.Windows.ClientCredential.Domain;
-                }
-
-                if (!String.IsNullOrEmpty(config.Credentials.Windows.ClientCredential.UserName))
-                {
-                    connectionString += ";Username=" + config.Credentials.Windows.ClientCredential.UserName;
-                }
-
-                if (!String.IsNullOrEmpty(config.Credentials.Windows.ClientCredential.Password))
-                {
-                    connectionString += ";Password=" + config.Credentials.Windows.ClientCredential.Password;
-                }
-                else if (config.Credentials.Windows.ClientCredential.SecurePassword != null && config.Credentials.Windows.ClientCredential.SecurePassword.Length > 0)
-                {
-                    var password = new System.Net.NetworkCredential(string.Empty, config.Credentials.Windows.ClientCredential.SecurePassword).Password;
-                    connectionString += ";Password=" + password;
-                }
-            }
-
-            if (config.Credentials != null)
-            {
-                if (!String.IsNullOrEmpty(config.Credentials.UserName.UserName))
-                {
-                    connectionString += ";Username=" + config.Credentials.UserName.UserName;
-                }
-                if (!String.IsNullOrEmpty(config.Credentials.UserName.Password))
-                {
-                    connectionString += ";Password=" + config.Credentials.UserName.Password;
-                }
-            }
-
-            if (config.HomeRealmUri != null)
-            {
-                connectionString += ";HomeRealmUri=" + config.HomeRealmUri.ToString();
-            }
-
-            return connectionString;
         }
 
         private static void RunTask(CommandLineArgs arguments, IOrganizationService service, ITrace trace)

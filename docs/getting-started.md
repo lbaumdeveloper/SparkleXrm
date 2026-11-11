@@ -2,7 +2,7 @@
 
 This guide sets up spkl **once per Visual Studio solution**. Every Dynamics 365 / Dataverse project in the solution is deployed from a single `Tooling` project, and the same commands work from Visual Studio, VS Code and a terminal.
 
-spkl runs on Windows only (it targets .NET Framework 4.6.2).
+spkl runs on Windows and needs the [.NET 8 runtime](https://dotnet.microsoft.com/download/dotnet/8.0). Your plugin and workflow projects stay on .NET Framework 4.6.2, as Dataverse requires; spkl reads them without loading them.
 
 ## 1. Solution layout
 

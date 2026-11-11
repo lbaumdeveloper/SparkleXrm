@@ -1,4 +1,4 @@
-﻿namespace SparkleXrmTask.XrmToolingCmdLine
+﻿namespace SparkleXrmTask.Connection
 {
     public class SavedConnection
     {

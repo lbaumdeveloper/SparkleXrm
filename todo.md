@@ -21,10 +21,14 @@
 - [x] JSON schema for `spkl.json` for editor completion
 
 ## Modernization
-- [ ] Convert projects to SDK-style `.csproj`
-- [ ] Replace `Microsoft.Xrm.Tooling.Connector` / ADAL with `Microsoft.PowerPlatform.Dataverse.Client`
-- [ ] Move CLI to .NET 8 and ship it as a dotnet local tool (`dotnet-tools.json`, `dotnet tool restore`)
+- [x] Convert projects to SDK-style `.csproj` (except `CrmSvcUtilFilteringService`, replaced by the pac CLI later)
+- [x] Replace `Microsoft.Xrm.Tooling.Connector` / ADAL with `Microsoft.PowerPlatform.Dataverse.Client`
+- [x] Read plugin assemblies with `MetadataLoadContext` instead of `Assembly.ReflectionOnlyLoad`
+- [x] Replace the `CmdLine` package with a built-in argument parser
+- [x] Move CLI to .NET 8
+- [ ] Ship the CLI as a dotnet local tool (`dotnet-tools.json`, `dotnet tool restore`)
+- [ ] `earlybound`, `pack`, `unpack`, `import`: use the pac CLI instead of CrmSvcUtil / SolutionPackager
 - [ ] Ship `CrmPluginRegistrationAttribute` as a source-only NuGet package
-- [ ] CI pipeline: build and run `SparkleXrm.Tasks.Tests`
+- [x] CI pipeline: build and run the `SparkleXrm.Tasks.Tests` unit tests
 - [ ] `dotnet new` solution template (Webresources, Plugins, Actions, Workflows, Helper, Tooling)
 - [ ] Update NuGet metadata (authors, project URL, icon)
