@@ -1,9 +1,7 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
 using System;
-using System.Configuration;
 using System.IO;
 
 namespace SparkleXrm.Tasks.Tests
@@ -15,8 +13,8 @@ namespace SparkleXrm.Tasks.Tests
         [TestCategory("Integration Tests")]
         public void DeployCustomApi()
         {
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
            
 

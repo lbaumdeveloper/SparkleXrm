@@ -3,10 +3,8 @@ using Microsoft.Crm.Sdk.Messages;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Messages;
-using Microsoft.Xrm.Tooling.Connector;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -21,8 +19,8 @@ namespace SparkleXrm.Tasks.Tests
         [TestCategory("Integration Tests")]
         public void DeployPlugins()
         {
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var pluginTask = new DeployPluginsTask(crmSvc, trace);
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -35,8 +33,8 @@ namespace SparkleXrm.Tasks.Tests
         [TestCategory("Integration Tests")]
         public void DeployWorfklows()
         {
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
                 @"..\..\..\TestPluginWorkflowCombined");

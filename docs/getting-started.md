@@ -2,7 +2,7 @@
 
 This guide sets up spkl **once per Visual Studio solution**. Every Dynamics 365 / Dataverse project in the solution is deployed from a single `Tooling` project, and the same commands work from Visual Studio, VS Code and a terminal.
 
-spkl runs on Windows only (it targets .NET Framework 4.6.2).
+spkl runs on Windows with .NET Framework 4.8 and supports Dynamics 365 v9 on-premises (AD, IFD) and online. Your plugin and workflow projects stay on .NET Framework 4.6.2; spkl reads them without loading them.
 
 ## 1. Solution layout
 
@@ -111,8 +111,17 @@ Without a connection string spkl shows a console login:
 To skip the prompt, set a [Dataverse connection string](https://learn.microsoft.com/power-apps/developer/data-platform/xrm-tooling/use-connection-strings-xrm-tooling-connect) for your session:
 
 ```powershell
+# On-premises with the logged-in Windows user
+$env:SPKL_CONNECTION = "AuthType=AD;Url=https://crm.contoso.local/Contoso"
+
+# On-premises IFD
+$env:SPKL_CONNECTION = "AuthType=IFD;Url=https://contoso.crm.contoso.com;Domain=CONTOSO;Username=jsmith;Password=***"
+
+# Online
 $env:SPKL_CONNECTION = "AuthType=ClientSecret;Url=https://contoso.crm4.dynamics.com;ClientId=...;ClientSecret=..."
 ```
+
+`Password=***` makes spkl ask for the password, so it never sits in the variable. Without a connection string, `spkl <task> /l` shows the on-premises console login instead of the online one.
 
 Never commit connection strings. `-Connection` on `spkl.ps1` overrides the environment variable.
 

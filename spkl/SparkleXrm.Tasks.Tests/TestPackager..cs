@@ -4,11 +4,9 @@ using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
-using Microsoft.Xrm.Tooling.Connector;
 using SparkleXrm.Tasks.Config;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -38,8 +36,8 @@ namespace SparkleXrm.Tasks.Tests
         public void UnpackSolution()
         {
             // Assemble
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             Guid id = Guid.NewGuid();
             var tempFolder = Path.Combine(Path.GetTempPath(), id.ToString());
@@ -79,8 +77,8 @@ namespace SparkleXrm.Tasks.Tests
         {
 
             // Assemble
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             Guid id = Guid.NewGuid();
             var tempFolder = Path.Combine(Path.GetTempPath(), id.ToString());
@@ -134,8 +132,8 @@ namespace SparkleXrm.Tasks.Tests
         {
             
             // Assemble
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             Guid id = Guid.NewGuid();
             var tempFolder = Path.Combine(Path.GetTempPath(), id.ToString());
@@ -178,8 +176,8 @@ namespace SparkleXrm.Tasks.Tests
         public void Pack_Upload_ReportError()
         {
             // Assemble
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             Guid id = Guid.NewGuid();
             var tempFolder = Path.Combine(Path.GetTempPath(), id.ToString());

@@ -19,8 +19,9 @@ Switches:
 | `/o` | `download-webresources` only: overwrite existing local files. |
 | `/s:<prefix>` | `get-webresources` only: publisher prefix to strip when matching files, e.g. `/s:new`. |
 | `/w` | Wait for a key press before exiting. |
-| `/l` | Legacy login for on-premises (AD/IFD). |
+| `/l` | On-premises login (AD / IFD) via the discovery service. |
 | `/i` | With `/l`: ignore the logged-in Windows user and ask for credentials. |
+| `/?` | Show the help. |
 
 With `Tooling\spkl.ps1` you only pass `-Task`, `-Profile` and optionally `-Connection` or `-Path`; it fills in the rest.
 

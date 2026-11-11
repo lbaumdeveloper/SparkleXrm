@@ -1,60 +1,136 @@
-﻿using CmdLine;
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Text.RegularExpressions;
 
 namespace SparkleXrmTask
 {
-    [CommandLineArguments(Program = "spkl", Title = "SparkleXrm Deployment Tasks", Description = "Let SparkleXrm do the work for you!")]
+    /// <summary>
+    /// Arguments of the spkl command line: spkl task [path] [connection-string] [profile] [/p:profile] [/s:prefix] [/o] [/e] [/w] [/l] [/i]
+    /// </summary>
     public class CommandLineArgs
     {
-        [CommandLineParameter(Command = "?", Default = false, Description = "Show Help", Name = "Help", IsHelp = true)]
+        public const string HelpText = @"
+Usage: spkl <task> [path] [connection-string] [/p:<profile>] [switches]
+
+Tasks:
+  plugins                Deploy plugins and Custom API plugin types
+  workflow               Deploy custom workflow activities
+  webresources           Deploy and publish webresources
+  instrument             Read registrations from Dataverse and add [CrmPluginRegistration] attributes to existing classes
+  get-webresources       Match local webresource files to webresources in Dataverse and add them to spkl.json
+  download-webresources  Download the webresources of a solution to local files
+  earlybound             Create early-bound types for C# development
+  unpack                 Export a solution from Dataverse and unpack it into xml files & folders
+  unpacksolution         Unpack a solution zip from the filesystem into xml files & folders
+  pack                   Pack an unpacked solution into a solution zip
+  import                 Pack a solution as per 'pack', then import it into Dataverse and publish
+  export                 Export a solution from Dataverse as zip file(s)
+  whoami                 Show the organization and user of the connection
+
+Arguments:
+  path                   Folder that contains spkl.json, or the spkl.json file. Defaults to the current directory.
+  connection-string      Connection string. Without it, spkl shows an interactive login. """" = no connection.
+
+Switches:
+  /p:<profile>           Only use spkl.json entries with this profile
+  /s:<prefix>            get-webresources: publisher prefix, e.g. /s:new
+  /o                     download-webresources: overwrite existing files
+  /e                     plugins: register assemblies and types but no steps
+  /w                     Wait for a key press before exiting
+  /l                     On-premises login (AD / IFD) via the discovery service
+  /i                     With /l: ignore the logged-in Windows user and ask for credentials
+  /?                     Show this help
+";
+
+        private static readonly Regex SwitchPattern = new Regex(@"^[/-](?<name>[a-z?])(:(?<value>.*))?$", RegexOptions.IgnoreCase);
+
+        public string Task { get; set; }
+        public string Path { get; set; }
+        public string Connection { get; set; }
+        public string Profile { get; set; }
+        public string Prefix { get; set; }
+        public bool Overwrite { get; set; }
+        public bool ExcludePluginSteps { get; set; }
+        public bool WaitForKey { get; set; }
+        public bool LegacyLogin { get; set; }
+        public bool IgnoreLocalPrincipal { get; set; }
         public bool Help { get; set; }
 
-        [CommandLineParameter(Name = "task", ParameterIndex = 1, Required = true, Description = @"
-plugins = Deploy plugins and Custom API plugin types
-workflow = Deploy custom workflow activities
-webresources = Deploy and publish webresources
-instrument = Read registrations from Dynamics 365 and add [CrmPluginRegistration] attributes to existing classes
-get-webresources = Match local webresource files to webresources in Dynamics 365 and add them to spkl.json
-download-webresources = Download the webresources of a solution to local files
-earlybound = Create earlybound types for C# development
-unpack = Export a solution from Dynamics 365 and unpack it into xml files & folders
-unpacksolution = Unpack a solution zip from the filesystem into xml files & folders
-pack = Pack an unpacked solution into a solution zip, taking assemblies and webresources from their mapped locations
-import = Pack a solution as per the 'pack' task, then import it into Dynamics 365 and publish
-export = Export a solution from Dynamics 365 as zip file(s)
-whoami = Show the organization and user of the connection
-")]
-        public string Task { get; set; }
+        /// <summary>
+        /// Parses the command line. Throws <see cref="ArgumentException"/> for unknown switches or too many positional arguments.
+        /// </summary>
+        public static CommandLineArgs Parse(string[] args)
+        {
+            var result = new CommandLineArgs();
+            var positional = new System.Collections.Generic.List<string>();
 
-        [CommandLineParameter(Name = "Overwrite", Command = "o", Required = false, Description = "Optional overwrite webresource files when downloading webresources")]
-        public bool Overwrite { get; set; }
+            foreach (var arg in args)
+            {
+                var match = SwitchPattern.Match(arg);
+                if (!match.Success)
+                {
+                    positional.Add(arg);
+                    continue;
+                }
 
-        [CommandLineParameter(Name = "path", ParameterIndex = 2, Required = false, Description = "Optional path to spkl.json file")]
-        public string Path { get; set; }
+                var value = match.Groups["value"].Success ? match.Groups["value"].Value : null;
+                switch (match.Groups["name"].Value.ToLowerInvariant())
+                {
+                    case "p":
+                        result.Profile = RequireValue("p", value);
+                        break;
+                    case "s":
+                        result.Prefix = RequireValue("s", value);
+                        break;
+                    case "o":
+                        result.Overwrite = true;
+                        break;
+                    case "e":
+                        result.ExcludePluginSteps = true;
+                        break;
+                    case "w":
+                        result.WaitForKey = true;
+                        break;
+                    case "l":
+                        result.LegacyLogin = true;
+                        break;
+                    case "i":
+                        result.IgnoreLocalPrincipal = true;
+                        break;
+                    case "?":
+                    case "h":
+                        result.Help = true;
+                        break;
+                    default:
+                        throw new ArgumentException($"Unknown switch '{arg}'.");
+                }
+            }
 
-        [CommandLineParameter(Name = "connection", ParameterIndex = 3, Required = false, Description = "Optional Connection String")]
-        public string Connection { get; set; }
+            if (positional.Count > 4)
+            {
+                throw new ArgumentException($"Too many arguments: '{string.Join("' '", positional.Skip(4))}'.");
+            }
 
-        [CommandLineParameter(Name = "profile", Command = "p", ParameterIndex = 4, Required = false, Description = "Optional profile name. If ommitted, default will be used")]
-        public string Profile { get; set; }
+            result.Task = positional.ElementAtOrDefault(0);
+            result.Path = positional.ElementAtOrDefault(1);
+            result.Connection = positional.ElementAtOrDefault(2);
+            result.Profile = result.Profile ?? positional.ElementAtOrDefault(3);
 
-        [CommandLineParameter(Name = "solution prefix", Command = "s", Required = false, Description = "Optional Prefix to filter webresources when downloading the config.")]
-        public string Prefix { get; set; }
+            if (!result.Help && string.IsNullOrWhiteSpace(result.Task))
+            {
+                throw new ArgumentException("No task given.");
+            }
 
-        [CommandLineParameter(Name = "Wait for keypress", Command = "w", Required = false, Description = "Optional wait for a key press at the end of task run")]
-        public bool WaitForKey { get; set; }
+            return result;
+        }
 
-        [CommandLineParameter(Name = "Ignore Windows login", Command = "i", Required = false, Description = "Optional flag to ignore logged in windows credentials during discovery and always ask for username/password.")]
-        public bool IgnoreLocalPrincipal { get; set; }
-
-        [CommandLineParameter(Name = "Exclude Plugin Steps", Command = "e", Required = false, Description = "Exclude plugin steps when deploying plugins")]
-        public bool ExcludePluginSteps { get; set; }
-
-        [CommandLineParameter(Name = "Legacy Login Mode", Command = "l", Required = false, Description = "Use the legacy command line login mode")]
-        public bool LegacyLogin { get; set; }
+        private static string RequireValue(string name, string value)
+        {
+            if (string.IsNullOrWhiteSpace(value))
+            {
+                throw new ArgumentException($"Switch '/{name}' needs a value, e.g. /{name}:value.");
+            }
+            return value;
+        }
     }
 }

@@ -25,7 +25,8 @@ Install-Package spkl -ProjectName Tooling      # once, only in the Tooling proje
 
 ## Requirements
 
-- Windows (spkl targets .NET Framework 4.6.2)
+- Windows with .NET Framework 4.8
+- Dynamics 365 v9 on-premises (AD / IFD) or online
 - A Dataverse / Dynamics 365 environment
 
 ## Repository layout

@@ -1,7 +1,5 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using Microsoft.Xrm.Tooling.Connector;
-using System.Configuration;
 using System.IO;
 using Microsoft.Xrm.Sdk.Client;
 using System.Linq;
@@ -16,8 +14,8 @@ namespace SparkleXrm.Tasks.Tests
         public void TestUpdateFilteringAttributes()
         {
             // Check that updating a plugin step updates the filtering attributes
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
 
             // Find an update plugin step

@@ -72,7 +72,8 @@ Only one attribute per activity. Deploy with the `workflow` task.
 
 ## Things that are easy to miss
 
-- **Only public classes** are found. spkl looks at the assembly's exported types that implement `IPlugin` (or inherit `CodeActivity`).
+- **Plugins must be public classes.** spkl looks at the assembly's exported types that implement `IPlugin`, directly or through a base class.
+- **Workflow activities** are found whether public or not, as long as they inherit `CodeActivity` directly or through a base class.
 - **Classes without an attribute are skipped.** They are not registered as plugin types. An abstract `PluginBase` without an attribute is therefore fine.
 - **No attribute at all = nothing happens.** If no class in the assembly has an attribute, the assembly is not registered.
 - **Isolation mode** of the assembly is taken from the first attribute found.

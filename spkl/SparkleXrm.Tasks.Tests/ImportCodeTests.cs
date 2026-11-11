@@ -1,9 +1,7 @@
 ﻿using System;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System.Diagnostics;
-using Microsoft.Xrm.Tooling.Connector;
 using System.IO;
-using System.Configuration;
 using Microsoft.Xrm.Sdk.Client;
 using System.Collections.Generic;
 using Microsoft.Xrm.Sdk;
@@ -264,8 +262,8 @@ namespace SparkleXrm.Tasks.Tests
         public void DownloadPluginMetadata()
         {
 
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var task = new DownloadPluginMetadataTask(crmSvc, trace);
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -279,8 +277,8 @@ namespace SparkleXrm.Tasks.Tests
         public void DownloadWorkflowMetadata()
         {
 
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var task = new DownloadPluginMetadataTask(crmSvc, trace);
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -294,8 +292,8 @@ namespace SparkleXrm.Tasks.Tests
         public void DownloadWebresourceConfig()
         {
 
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var task = new DownloadWebresourceConfigTask(crmSvc, trace);
             task.Prefix = "new_";

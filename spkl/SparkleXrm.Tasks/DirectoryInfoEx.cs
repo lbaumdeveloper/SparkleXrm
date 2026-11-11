@@ -58,7 +58,7 @@ namespace SparkleXrm.Tasks
 
         private static List<string> Match(string path, IEnumerable<string> patterns)
         {
-            var matcher = new Matcher(StringComparison.InvariantCultureIgnoreCase);
+            var matcher = new Matcher(StringComparison.OrdinalIgnoreCase);
             foreach (var pattern in patterns)
             {
                 matcher.AddInclude(pattern);

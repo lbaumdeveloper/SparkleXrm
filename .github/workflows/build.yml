@@ -1,0 +1,27 @@
+name: build
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+
+jobs:
+  build:
+    runs-on: windows-latest
+    defaults:
+      run:
+        working-directory: spkl
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - name: Build test plugins
+        run: |
+          dotnet build TestPlugin
+          dotnet build TestWorkflowActivity
+          dotnet build TestPluginWorkflowCombined
+      - name: Build CLI
+        run: dotnet build spkl -c Release
+      - name: Unit tests
+        run: dotnet test SparkleXrm.Tasks.Tests --filter "TestCategory=Unit Tests"

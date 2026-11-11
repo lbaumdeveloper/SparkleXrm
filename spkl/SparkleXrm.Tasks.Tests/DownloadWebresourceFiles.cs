@@ -7,9 +7,7 @@ using System.Collections.Generic;
 using Microsoft.Xrm.Sdk.Messages;
 using Microsoft.Xrm.Sdk.Query;
 using System.Text;
-using Microsoft.Xrm.Tooling.Connector;
 using System.IO;
-using System.Configuration;
 
 namespace SparkleXrm.Tasks.Tests
 {
@@ -20,8 +18,8 @@ namespace SparkleXrm.Tasks.Tests
         [TestCategory("Integration Tests")]
         public void TestDownloadFiles()
         {
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var task = new DownloadWebresourceFileTask(crmSvc, trace);
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -104,7 +102,7 @@ namespace SparkleXrm.Tasks.Tests
             Assert.AreEqual(@"new_\foo\bar.js", config.webresources[0].files[0].uniquename);
             Assert.AreEqual(@"new_\foo\bar.js", config.webresources[0].files[0].displayname);
             Assert.AreEqual(@"WebResourcesFiles\new_\foo\bar.js", config.webresources[0].files[0].file);
-            A.CallTo(() => config.Save()).MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => config.Save()).MustHaveHappenedOnceExactly();
         }
 
         private static void Arrange(ConfigFile config, out IDirectoryService directoryService, out IOrganizationService service, out TraceLogger trace)
@@ -224,7 +222,7 @@ namespace SparkleXrm.Tasks.Tests
             Assert.AreEqual(@"new_\foo\bar.js", config.webresources[0].files[0].uniquename);
             Assert.AreEqual(@"new_\foo\bar.js", config.webresources[0].files[0].displayname);
             Assert.AreEqual(@"WebResourcesFiles\new_\foo\bar.js", config.webresources[0].files[0].file);
-            A.CallTo(() => config.Save()).MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => config.Save()).MustHaveHappenedOnceExactly();
 
         }
 
@@ -320,7 +318,7 @@ namespace SparkleXrm.Tasks.Tests
             Assert.AreEqual(@"new_\foo\bar.js", config.webresources[0].files[0].uniquename);
             Assert.AreEqual(@"new_\foo\bar.js", config.webresources[0].files[0].displayname);
             Assert.AreEqual(@"WebResourcesFiles\new_\foo\bar.js", config.webresources[0].files[0].file);
-            A.CallTo(() => config.Save()).MustHaveHappened(Repeated.Exactly.Once);
+            A.CallTo(() => config.Save()).MustHaveHappenedOnceExactly();
 
         }
     }

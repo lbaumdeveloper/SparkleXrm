@@ -1,10 +1,8 @@
 ﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Microsoft.Xrm.Sdk.Client;
-using Microsoft.Xrm.Tooling.Connector;
 using SparkleXrm.Tasks.Config;
 using System;
 using System.Collections.Generic;
-using System.Configuration;
 using System.IO;
 using System.Linq;
 using System.Text;
@@ -266,9 +264,9 @@ namespace SparkleXrm.Tasks.Tests
         
         private static void Generate(string tempFolder, ConfigFile config)
         {
-            var connectionString = ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString;
-            CrmServiceClient crmSvc = new CrmServiceClient(connectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var connectionString = TestConnection.ConnectionString;
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
 
 

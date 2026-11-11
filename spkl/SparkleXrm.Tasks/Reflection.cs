@@ -28,40 +28,91 @@ namespace SparkleXrm.Tasks
             "Microsoft.Rest.ClientRuntime.dll"
         };
 
-        public static Assembly LoadAssembly(string path)
+        /// <summary>
+        /// Folders with the .NET Framework assemblies that plugin and workflow assemblies are compiled against.
+        /// </summary>
+        public static List<string> FrameworkDirectories { get; set; } = DefaultFrameworkDirectories();
+
+        /// <summary>
+        /// Creates a metadata-only context for inspecting a .NET Framework plugin assembly without loading it into spkl.
+        /// Dependencies are resolved from the assembly's folder, the .NET Framework folder and spkl's own Dataverse SDK assemblies.
+        /// </summary>
+        public static MetadataLoadContext CreateContext(string assemblyPath)
         {
-            Assembly assembly = null;
+            var paths = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+
+            AddAssemblies(paths, AppContext.BaseDirectory, "Microsoft.Xrm.Sdk.dll", "Microsoft.Crm.Sdk.Proxy.dll");
+            foreach (var directory in FrameworkDirectories.Where(Directory.Exists))
+            {
+                AddAssemblies(paths, directory, "*.dll");
+            }
+            AddAssemblies(paths, Path.GetDirectoryName(Path.GetFullPath(assemblyPath)), "*.dll");
+            paths[Path.GetFileName(assemblyPath)] = Path.GetFullPath(assemblyPath);
+
+            return new MetadataLoadContext(new PathAssemblyResolver(paths.Values), "mscorlib");
+        }
+
+        public static IEnumerable<Type> GetTypesImplementingInterface(Assembly assembly, string interfaceFullName)
+        {
+            return assembly.GetExportedTypes()
+                .Where(t => t.IsClass && TryGetInterfaces(t).Any(i => i.FullName == interfaceFullName))
+                .ToList();
+        }
+
+        public static IEnumerable<Type> GetTypesInheritingFrom(Assembly assembly, string baseTypeFullName)
+        {
+            return assembly.GetTypes()
+                .Where(t => t.IsClass && GetBaseTypeNames(t).Contains(baseTypeFullName))
+                .ToList();
+        }
+
+        private static IEnumerable<Type> TryGetInterfaces(Type type)
+        {
             try
             {
-                assembly = Assembly.LoadFrom(path);
+                return type.GetInterfaces();
             }
-            catch (FileLoadException ex)
+            catch (FileNotFoundException)
             {
-                // Assembly already loaded so skip
-                Debug.WriteLine("Assembly load error:" + ex.Message);
+                return Enumerable.Empty<Type>();
             }
-            return assembly;
         }
 
-        public static IEnumerable<Type> GetTypesImplementingInterface(Assembly assembly, Type interfaceName)
+        private static IEnumerable<string> GetBaseTypeNames(Type type)
         {
-            var types = assembly.ExportedTypes.Where(p => p.GetInterfaces().FirstOrDefault(a => a.Name == interfaceName.Name) != null);
-            Trace.WriteLine(types.FirstOrDefault()?.CustomAttributes.Count());
-            return types;
+            var names = new List<string>();
+            try
+            {
+                for (var baseType = type.BaseType; baseType != null; baseType = baseType.BaseType)
+                {
+                    names.Add(baseType.FullName);
+                }
+            }
+            catch (FileNotFoundException)
+            {
+            }
+            return names;
         }
 
-        public static IEnumerable<Type> GetTypesInheritingFrom(Assembly assembly, Type type)
+        private static void AddAssemblies(Dictionary<string, string> paths, string directory, params string[] patterns)
         {
-            var definedTypes = assembly.DefinedTypes.Where(p => p.BaseType != null && p.BaseType.Name == type.Name).ToList();
-
-            var allTypes = new List<TypeInfo>(definedTypes);
-            foreach (var abstractType in definedTypes.Where(t => t.IsAbstract))
+            foreach (var pattern in patterns)
             {
-                var inheritingTypes = assembly.DefinedTypes.Where(t => t.IsClass && !t.IsAbstract && t.IsSubclassOf(abstractType.UnderlyingSystemType)).ToList();
-                allTypes.AddRange(inheritingTypes);
+                foreach (var file in Directory.GetFiles(directory, pattern))
+                {
+                    paths[Path.GetFileName(file)] = file;
+                }
             }
+        }
 
-            return allTypes;
+        private static List<string> DefaultFrameworkDirectories()
+        {
+            var windows = Environment.GetFolderPath(Environment.SpecialFolder.Windows);
+            return new List<string>
+            {
+                Path.Combine(windows, @"Microsoft.NET\Framework64\v4.0.30319"),
+                Path.Combine(windows, @"Microsoft.NET\Framework\v4.0.30319")
+            }.Where(d => !string.IsNullOrEmpty(windows)).ToList();
         }
 
         public static IEnumerable<CustomAttributeData> GetAttributes(IEnumerable<Type> types, string attributeName)

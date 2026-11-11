@@ -67,7 +67,7 @@ namespace SparkleXrm.Tasks
                         attribute.FriendlyName = (string)namedArgument.TypedValue.Value;
                         break;
                     case "GroupName":
-                        attribute.FriendlyName = (string)namedArgument.TypedValue.Value;
+                        attribute.GroupName = (string)namedArgument.TypedValue.Value;
                         break;
                     case "Image1Name":
                         attribute.Image1Name = (string)namedArgument.TypedValue.Value;

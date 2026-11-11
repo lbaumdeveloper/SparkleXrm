@@ -4,9 +4,7 @@ using System.IO;
 using System.Threading;
 using System.Reflection;
 using System.Linq;
-using Microsoft.Xrm.Tooling.Connector;
 using System.Collections.Generic;
-using System.Configuration;
 using Microsoft.Xrm.Sdk.Client;
 using SparkleXrm.Tasks.Config;
 using FakeItEasy;
@@ -20,8 +18,8 @@ namespace SparkleXrm.Tasks.Tests
         [TestCategory("Integration Tests")]
         public void DeployPlugins()
         {
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var task = new DeployPluginsTask(crmSvc, trace);
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -34,8 +32,8 @@ namespace SparkleXrm.Tasks.Tests
         [TestCategory("Integration Tests")]
         public void DeployWorkflowActivities()
         {
-            CrmServiceClient crmSvc = new CrmServiceClient(ConfigurationManager.ConnectionStrings["integration_testing"].ConnectionString);
-            var userId = crmSvc.GetMyCrmUserId();
+            var crmSvc = TestConnection.Create();
+            var userId = crmSvc.GetMyUserId();
             var trace = new TraceLogger();
             var task = new DeployWorkflowActivitiesTask(crmSvc, trace);
             var path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -48,48 +46,42 @@ namespace SparkleXrm.Tasks.Tests
         [TestCategory("Unit Tests")]
         public void TestGetWorkflowActivityMetadata()
         {
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            UriBuilder uri = new UriBuilder(codeBase);
-            string path = Uri.UnescapeDataString(uri.Path);
-            var currentAssemblyPath = Path.GetDirectoryName(path);
-
-            // Load this assembly
             var testAssemblyPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
               @"..\..\..\TestWorkflowActivity");
 
             var assemblyPath = new DirectoryService().SimpleSearch(testAssemblyPathRoot, "TestWorkflowActivity.dll");
 
-            Assembly thisAssembly = Reflection.LoadAssembly(assemblyPath);
-            IEnumerable<Type> pluginTypes = Reflection.GetTypesInheritingFrom(thisAssembly, typeof(System.Activities.CodeActivity));
-            var workflowActivityCustomBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivityInheritingFromWorkflowActivityBase"), typeof(CrmPluginRegistrationAttribute).Name);
-            Assert.AreEqual(1, workflowActivityCustomBaseClass.Count(), "Custom Base Class Metadata");
+            using (var context = Reflection.CreateContext(assemblyPath))
+            {
+                var thisAssembly = context.LoadFromAssemblyPath(assemblyPath);
+                var pluginTypes = Reflection.GetTypesInheritingFrom(thisAssembly, "System.Activities.CodeActivity");
+                var workflowActivityCustomBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivityInheritingFromWorkflowActivityBase"), typeof(CrmPluginRegistrationAttribute).Name);
+                Assert.AreEqual(1, workflowActivityCustomBaseClass.Count(), "Custom Base Class Metadata");
 
-            var codeActivityBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivity"), typeof(CrmPluginRegistrationAttribute).Name);
-            Assert.AreEqual(1, codeActivityBaseClass.Count(), "CodeActiviy Base Class Metadata");
+                var codeActivityBaseClass = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "WorkflowActivity"), typeof(CrmPluginRegistrationAttribute).Name);
+                Assert.AreEqual(1, codeActivityBaseClass.Count(), "CodeActiviy Base Class Metadata");
+            }
         }
 
         [TestMethod]
         [TestCategory("Unit Tests")]
         public void TestGetPluginMetadata()
         {
-            string codeBase = Assembly.GetExecutingAssembly().CodeBase;
-            UriBuilder uri = new UriBuilder(codeBase);
-            string path = Uri.UnescapeDataString(uri.Path);
-            var currentAssemblyPath = Path.GetDirectoryName(path);
-
-            // Load this assembly
             var testAssemblyPathRoot = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
               @"..\..\..\TestPlugin");
 
             var assemblyPath = new DirectoryService().SimpleSearch(testAssemblyPathRoot, "TestPlugin.dll");
 
-            Assembly thisAssembly = Reflection.LoadAssembly(assemblyPath);
-            IEnumerable<Type> pluginTypes = Reflection.GetTypesImplementingInterface(thisAssembly, typeof(Microsoft.Xrm.Sdk.IPlugin));
-            var attributes = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "PreValidateaccountUpdate"), typeof(CrmPluginRegistrationAttribute).Name);
-            var pluginStep = (CrmPluginRegistrationAttribute)attributes.Where(s => s.ConstructorArguments[5].Value.ToString() == "Create Step").First().CreateFromData();
-            Assert.AreEqual("Description", pluginStep.Description);
-            Assert.AreEqual("Some config", pluginStep.UnSecureConfiguration);
-            Assert.AreEqual(true, pluginStep.DeleteAsyncOperation);
+            using (var context = Reflection.CreateContext(assemblyPath))
+            {
+                var thisAssembly = context.LoadFromAssemblyPath(assemblyPath);
+                var pluginTypes = Reflection.GetTypesImplementingInterface(thisAssembly, typeof(Microsoft.Xrm.Sdk.IPlugin).FullName);
+                var attributes = Reflection.GetAttributes(pluginTypes.Where(t => t.Name == "PreValidateaccountUpdate"), typeof(CrmPluginRegistrationAttribute).Name);
+                var pluginStep = (CrmPluginRegistrationAttribute)attributes.Where(s => s.ConstructorArguments[5].Value.ToString() == "Create Step").First().CreateFromData();
+                Assert.AreEqual("Description", pluginStep.Description);
+                Assert.AreEqual("Some config", pluginStep.UnSecureConfiguration);
+                Assert.AreEqual(true, pluginStep.DeleteAsyncOperation);
+            }
         }
 
         [TestMethod]
