@@ -25,10 +25,8 @@ jobs:
         run: dotnet build spkl -c Release
       - name: Unit tests
         run: dotnet test SparkleXrm.Tasks.Tests --filter "TestCategory=Unit Tests"
-      - name: Pack attribute and template packages
-        run: |
-          dotnet pack Spkl.Attributes -c Release -o "$env:RUNNER_TEMP\packages"
-          dotnet pack ..\templates\Spkl.OnPrem.Templates.csproj -c Release -o "$env:RUNNER_TEMP\packages"
+      - name: Pack
+        run: ..\build\Pack.ps1 -OutputDirectory "$env:RUNNER_TEMP\packages"
       - name: Build a solution created from the template
         working-directory: ${{ runner.temp }}
         run: |
@@ -39,10 +37,12 @@ jobs:
           if (Select-String -Path Tooling\spkl.json -Pattern '<SolutionUniqueName>' -SimpleMatch) { throw 'SolutionUniqueName was not replaced' }
           dotnet new nugetconfig
           dotnet nuget add source "$env:RUNNER_TEMP\packages" --name local --configfile nuget.config
-          foreach ($project in 'Plugins\Fabrikam.Plugins.csproj', 'Actions\Fabrikam.Actions.csproj', 'Workflows\Fabrikam.Workflows.csproj', 'Helper\Fabrikam.Helper.csproj', 'Webresources\Webresources.csproj') {
-            dotnet build $project
-            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
-          }
+          dotnet build Fabrikam.sln
+          if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          $packages = if ($env:NUGET_PACKAGES) { $env:NUGET_PACKAGES } else { Join-Path $env:USERPROFILE '.nuget\packages' }
+          $spkl = Get-ChildItem (Join-Path $packages 'spkl.onprem') -Recurse -Filter spkl.exe | Select-Object -First 1
+          if (-not $spkl) { throw 'spkl.exe was not restored by the Tooling project' }
+          if (-not (Test-Path (Join-Path $spkl.DirectoryName 'spkl.CrmSvcUtilExtensions.dll'))) { throw 'spkl.CrmSvcUtilExtensions.dll is missing next to spkl.exe' }
           foreach ($assembly in 'Plugins\bin\Debug\Fabrikam.Plugins.dll', 'Actions\bin\Debug\Fabrikam.Actions.dll', 'Workflows\bin\Debug\Fabrikam.Workflows.dll') {
             $token = [System.Reflection.AssemblyName]::GetAssemblyName((Resolve-Path $assembly)).GetPublicKeyToken()
             if (-not $token -or $token.Length -eq 0) { throw "$assembly is not strong-named" }

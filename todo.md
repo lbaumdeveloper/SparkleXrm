@@ -21,7 +21,7 @@
 - [x] JSON schema for `spkl.json` for editor completion
 
 ## Modernization
-- [x] Convert projects to SDK-style `.csproj` (except `CrmSvcUtilFilteringService`)
+- [x] Convert projects to SDK-style `.csproj`
 - [x] Target .NET Framework 4.8 (spkl targets mostly Dynamics 365 v9 on-premises, so .NET 8 and `Microsoft.PowerPlatform.Dataverse.Client` are out)
 - [x] Update `Microsoft.CrmSdk.XrmTooling.CoreAssembly` to 9.1.1.103
 - [x] Read plugin assemblies with `MetadataLoadContext` instead of `Assembly.ReflectionOnlyLoad`
@@ -30,5 +30,6 @@
 - [x] CI pipeline: build and run the `SparkleXrm.Tasks.Tests` unit tests
 - [x] `dotnet new` solution template (Webresources, Plugins, Actions, Workflows, Helper, Tooling)
 - [x] Update NuGet metadata (ids `Spkl.OnPrem*`, authors, project URL, MIT license expression)
-- [ ] Package icon
-- [ ] Publish the packages to a feed (CI pack of `Spkl.OnPrem` needs the `CrmSvcUtilFilteringService` build)
+- [x] Package icon
+- [x] Publish workflow (`build/Pack.ps1`, `.github/workflows/publish.yml`)
+- [ ] Set the feed secrets and publish the first version
