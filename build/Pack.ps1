@@ -35,6 +35,6 @@ Write-Host "Packing version $version to $OutputDirectory"
 
 Invoke-DotNet build (Join-Path $root 'spkl\CrmSvcUtilFilteringService') -c Release
 Invoke-DotNet pack (Join-Path $root 'spkl\spkl\spkl.csproj') -c Release -o $OutputDirectory `
-    -p:NuspecFile=Package\spkl.nuspec -p:NuspecBasePath=Package -p:NuspecProperties="version=$version"
+    '-p:NuspecFile=Package\spkl.nuspec' '-p:NuspecBasePath=Package' "-p:NuspecProperties=version=$version"
 Invoke-DotNet pack (Join-Path $root 'spkl\Spkl.Attributes') -c Release -o $OutputDirectory
 Invoke-DotNet pack (Join-Path $root 'templates\Spkl.OnPrem.Templates.csproj') -c Release -o $OutputDirectory
