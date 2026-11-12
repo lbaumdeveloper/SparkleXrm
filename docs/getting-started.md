@@ -33,7 +33,7 @@ Create `Tooling` as a .NET Framework class library that uses `packages.config`, 
 Install-Package spkl -ProjectName Tooling
 ```
 
-The package adds `spkl.json`, `CrmPluginRegistrationAttribute.cs` and a `spkl\*.bat` folder to the project. Replace the generated `spkl.json` with the one from the template. The `.bat` files are not needed; `spkl.ps1` replaces them.
+The package adds `spkl.json`, `spkl.ps1` and `CrmPluginRegistrationAttribute.cs` to the project. They are the same files as in the template, so if you already copied the template, keep your edited `spkl.json` when NuGet asks to overwrite it.
 
 `spkl.ps1` looks for `spkl.exe` in this order and uses the highest version it finds:
 

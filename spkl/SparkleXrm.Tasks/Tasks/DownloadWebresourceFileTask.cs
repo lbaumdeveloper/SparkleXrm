@@ -1,21 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using Microsoft.Xrm.Sdk;
 using Microsoft.Xrm.Sdk.Client;
 using SparkleXrm.Tasks.Config;
-using Microsoft.Xrm.Sdk.Query;
-using System.IO;
 
 namespace SparkleXrm.Tasks
 {
+    /// <summary>
+    /// Downloads the web resources of each <c>webresources</c> entry's <c>solution</c> into its <c>root</c> folder.
+    /// The local path is the web resource name below <c>root</c>, e.g. <c>new_/js/form.js</c> is saved as <c>root\new_\js\form.js</c>.
+    /// Web resources not yet listed in <c>files</c> are added to spkl.json unless the entry uses <c>autodetect</c>.
+    /// </summary>
     public class DownloadWebresourceFileTask : BaseTask
     {
-
         public bool Overwrite { get; set; }
-
 
         public DownloadWebresourceFileTask(IOrganizationService service, ITrace trace) : base(service, trace)
         {
@@ -27,182 +27,86 @@ namespace SparkleXrm.Tasks
 
         protected override void ExecuteInternal(string filePath, OrganizationServiceContext ctx)
         {
+            var config = ServiceLocator.ConfigFileFactory.FindConfig(filePath).First();
 
-            _trace.WriteLine("Searching for webresources in '{0}'", filePath);
+            var sections = config.GetWebresourceConfig(Profile);
+            if (sections.Length == 0)
+                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.CONFIG_NOTFOUND,
+                    $"No 'webresources' entry for profile '{Profile ?? "default"}' in '{Path.Combine(config.filePath, "spkl.json")}'. Add one with 'root' and 'solution'.");
 
-            ConfigFile config = null;
-            try
-            {
-                var configs = ServiceLocator.ConfigFileFactory.FindConfig(filePath);
-                config = configs[0];
-            }
-            catch (Exception ex)
-            {
-                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.CONFIG_NOTFOUND, $"spkl.json not found at '{filePath}':{ex.Message}");
-            }
+            var knownNames = new HashSet<string>(
+                config.webresources.Where(w => w.files != null).SelectMany(w => w.files)
+                    .Where(f => f?.uniquename != null).Select(f => f.uniquename),
+                StringComparer.OrdinalIgnoreCase);
 
-            if (config.webresources == null || config.webresources.Count == 0)
+            var added = 0;
+            foreach (var section in sections)
             {
-                // Add a webresource section
-                config.webresources = new List<WebresourceDeployConfig> {new WebresourceDeployConfig
-                    {
-                        files = new List<WebResourceFile>()
-                    }
-                };
+                config.RequireSolution(section.solution, "webresources");
+                added += Download(ctx, config, section, knownNames);
             }
 
-            var newWebResources = new List<WebResourceFile>();
-
-            var files = config.webresources.Where(a => a.files != null).SelectMany(a => a.files);
-            Dictionary<string, WebResourceFile> existingWebResources = new Dictionary<string, WebResourceFile>();
-            foreach (var file in files)
+            if (added > 0)
             {
-                if (file?.uniquename == null) continue;
-
-                string key = file.uniquename.ToLower();
-                if (!existingWebResources.ContainsKey(key))
-                {
-                    existingWebResources[key] = file;
-                }
+                config.Save();
+                _trace.WriteLine("Added {0} web resource(s) to spkl.json", added);
             }
-
-            var webresourceConfig = config.GetWebresourceConfig(this.Profile).FirstOrDefault();
-            if (webresourceConfig == null)
-            {
-                config.webresources = new List<WebresourceDeployConfig>()
-                {
-                    new WebresourceDeployConfig()
-                    {
-                        files = new List<WebResourceFile>()
-                    }
-                };
-            }
-
-            var solutions = config.GetSolutionConfig(this.Profile);
-            if (solutions == null || solutions.Length == 0)
-                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.CONFIG_NOTFOUND, "Solution section not found in spkl.json. This is needed to determine where to store the webresources!");
-
-            string rootPath = Path.Combine(config.filePath, webresourceConfig.root != null ? webresourceConfig.root : "");
-
-            foreach (var solution in solutions)
-            {
-                var downloadedWebresources = ServiceLocator.Queries.GetWebresourcesInSolution(_context, solution.solution_uniquename);
-
-                if (downloadedWebresources.Count == 0)
-                    throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.NO_WEBRESOURCES_FOUND, $"No webresources found to download in the solution '{solution.solution_uniquename}'");
-
-                var maps = solution.map.Where(e => e.from.StartsWith("WebResources"));
-                if (maps == null || maps.Count() == 0)
-                    throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.CONFIG_NOTFOUND, $"No maps section in the solution packager config. This is needed to determine where to store the webresources!");
-
-                var webresourceRootFolder = String.IsNullOrEmpty(webresourceConfig.root) ?
-                    filePath : Path.Combine(filePath, webresourceConfig.root);
-                foreach (var resource in downloadedWebresources)
-                {
-                    var shortName = resource.Name;
-                    var name = $"WebResources\\{shortName}".Replace("/", "\\");
-                    var path = name;
-                    var nameFolder = Path.GetDirectoryName(name);
-                    var nameFile = Path.GetFileName(name);
-
-                    foreach (var map in maps)
-                    {
-                        string from = RemoveTrailingFolderSeperator(map.from);
-                        var fromfolder = Path.GetDirectoryName(map.from);
-                        var fromfile = Path.GetFileName(map.from);
-
-                        var to = Path.GetFullPath(Path.Combine(webresourceRootFolder, RemoveTrailingFolderSeperator(map.to)));
-
-                        if (map.map == MapTypes.file && Wildcard(fromfile, nameFile))
-                        {
-                            path = Path.GetFullPath(Path.Combine(webresourceRootFolder, to));
-                            break;
-                        }
-                        else if (map.map == MapTypes.path && name.StartsWith(fromfolder, StringComparison.InvariantCultureIgnoreCase)
-                            && (fromfile == "*.*" || Wildcard(fromfile, nameFile)))
-                        {
-                            path = Path.GetFullPath(Path.Combine(webresourceRootFolder, name.Replace(fromfolder, to)));
-                            break;
-                        }
-                        // fail through
-                        path = Path.GetFullPath(Path.Combine(webresourceRootFolder, name));
-                    }
-
-                    var content = Convert.FromBase64String(resource.Content);
-
-                    if (-1 != path.IndexOfAny(Path.GetInvalidPathChars()))
-                        continue;
-
-                    ServiceLocator.DirectoryService.SaveFile(path, content, Overwrite);
-
-                    if (!existingWebResources.ContainsKey(resource.Name.ToLower()))
-                    {
-                        var configFolder = config.filePath;
-                        configFolder += configFolder.EndsWith("\\") ? String.Empty : "\\";
-
-                        var relFilePath = new Uri(configFolder).MakeRelativeUri(new Uri(path)).ToString();
-                        relFilePath = relFilePath.Replace("/", "\\");
-                        newWebResources.Add(new WebResourceFile()
-                        {
-                            uniquename = shortName,
-                            displayname = resource.DisplayName,
-                            description = resource.Description,
-                            file = relFilePath
-                        });
-                        Console.WriteLine($"Added to spkl.json: {relFilePath}");
-                    }
-                }
-            }
-
-            if (webresourceConfig.files == null)
-                webresourceConfig.files = new List<WebResourceFile>();
-            webresourceConfig.files.AddRange(newWebResources);
-            config.Save();
-
         }
 
-        public Boolean Wildcard(string pattern, string input)
+        private int Download(OrganizationServiceContext ctx, ConfigFile config, WebresourceDeployConfig section, HashSet<string> knownNames)
         {
-            if (String.Compare(pattern, input) == 0)
+            var root = Path.GetFullPath(Path.Combine(config.filePath, section.root ?? ""))
+                .TrimEnd(Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar);
+            var addToConfig = !IsAutodetect(section);
+
+            _trace.WriteLine("Downloading web resources of solution '{0}' to '{1}'", section.solution, root);
+            var webresources = ServiceLocator.Queries.GetWebresourcesInSolution(ctx, section.solution);
+            if (webresources.Count == 0)
             {
-                return true;
+                _trace.WriteLine("No web resources found in solution '{0}'", section.solution);
+                return 0;
             }
-            else if (pattern.Length == 0)
+
+            var added = 0;
+            foreach (var webresource in webresources)
             {
-                return false;
-            }
-            else if (String.IsNullOrEmpty(input))
-            {
-                return String.IsNullOrEmpty(pattern.Trim('*'));
-            }
-            else if (pattern[0] == '*')
-            {
-                if (Wildcard(pattern.Substring(1), input))
+                var relativePath = webresource.Name.Replace('/', '\\');
+                if (relativePath.IndexOfAny(Path.GetInvalidPathChars()) != -1)
                 {
-                    return true;
+                    _trace.WriteLine("Skipped '{0}': the name is not a valid path", webresource.Name);
+                    continue;
                 }
-                else
+
+                var path = Path.GetFullPath(Path.Combine(root, relativePath));
+                if (!path.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase))
                 {
-                    return Wildcard(pattern, input.Substring(1));
+                    _trace.WriteLine("Skipped '{0}': the name points outside of '{1}'", webresource.Name, root);
+                    continue;
                 }
+
+                ServiceLocator.DirectoryService.SaveFile(path, Convert.FromBase64String(webresource.Content), Overwrite);
+
+                if (!addToConfig || !knownNames.Add(webresource.Name))
+                    continue;
+
+                if (section.files == null)
+                    section.files = new List<WebResourceFile>();
+                section.files.Add(new WebResourceFile
+                {
+                    uniquename = webresource.Name,
+                    file = relativePath,
+                    displayname = webresource.DisplayName == webresource.Name ? null : webresource.DisplayName,
+                    description = webresource.Description
+                });
+                added++;
             }
-            else if (pattern[0] == '?' || pattern[0] == input[0])
-            {
-                return Wildcard(pattern.Substring(1), input.Substring(1));
-            }
-            return false;
+            return added;
         }
 
-
-
-        private string RemoveTrailingFolderSeperator(string folder)
+        private static bool IsAutodetect(WebresourceDeployConfig section)
         {
-            //Todo... this should be handled better with better comparison, mapping, etc.
-            folder = folder.Replace("\\**", "");//.Replace("*.*","");
-            while ((int)folder[folder.Length - 1] == (int)Path.DirectorySeparatorChar || (int)folder[folder.Length - 1] == (int)Path.AltDirectorySeparatorChar)
-                folder = folder.Substring(0, folder.Length - 1);
-            return folder;
+            var value = section.autodetect?.ToLowerInvariant();
+            return value == "yes" || value == "true";
         }
-
     }
 }

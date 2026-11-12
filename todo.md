@@ -11,13 +11,13 @@
 - [x] Stop the implicit `**\` prefix on `assemblypath`; resolve paths relative to spkl.json only
 - [x] Stop the recursive `spkl.json` search; use exactly the given file or folder
 - [x] `get-webresources`: scan `root` instead of the spkl.json folder, and fix its multi-extension search that matched nothing
-- [ ] `download-webresources`: use `webresources[].root` and `solution` instead of requiring a `solutions[].map`
-- [ ] Apply `SecureConfiguration` and `Action`, or remove them from the attribute
-- [ ] Replace the `.bat` scripts in the NuGet package with `spkl.ps1`
+- [x] `download-webresources`: use `webresources[].root` and `solution` instead of requiring a `solutions[].map`
+- [x] Remove `SecureConfiguration` and `Action` from the attribute (never applied)
+- [x] Replace the `.bat` scripts in the NuGet package with `spkl.ps1`
 - [x] `compare`: removed
 - [x] Allow spaces in `profile` lists of the `solutions` section
 - [x] Add `/dry-run` that lists what would be created, updated and deleted
-- [ ] Find `CrmSvcUtil.exe` / `SolutionPackager.exe` without scanning the whole NuGet cache
+- [x] Find `CrmSvcUtil.exe` / `SolutionPackager.exe` without scanning the whole NuGet cache
 - [x] JSON schema for `spkl.json` for editor completion
 
 ## Modernization

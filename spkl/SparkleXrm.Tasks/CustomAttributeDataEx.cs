@@ -96,17 +96,11 @@ namespace SparkleXrm.Tasks
                     case "UnSecureConfiguration":
                         attribute.UnSecureConfiguration = (string)namedArgument.TypedValue.Value;
                         break;
-                    case "SecureConfiguration":
-                        attribute.SecureConfiguration = (string)namedArgument.TypedValue.Value;
-                        break;
                     case "Offline":
                         attribute.Offline = (bool)namedArgument.TypedValue.Value;
                         break;
                     case "Server":
                         attribute.Server = (bool)namedArgument.TypedValue.Value;
-                        break;
-                    case "Action":
-                        attribute.Action = (PluginStepOperationEnum)namedArgument.TypedValue.Value;
                         break;
                 }
             }
@@ -161,12 +155,6 @@ namespace SparkleXrm.Tasks
 
             if (attribute.UnSecureConfiguration != null)
                 additionalParmeters += indentation + ",UnSecureConfiguration = @\"" + attribute.UnSecureConfiguration.Replace("\"","\"\"") + "\"";
-
-            if (attribute.SecureConfiguration != null)
-                additionalParmeters += indentation + ",SecureConfiguration = @\"" + attribute.SecureConfiguration.Replace("\"", "\"\"") + "\"";
-
-            if (attribute.Action != null)
-                additionalParmeters += indentation + ",Action = PluginStepOperationEnum." + attribute.Action.ToString();
 
             // determine which template to use
             if (targetType == TargetType.Plugin)

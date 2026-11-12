@@ -100,12 +100,10 @@ public class CrmPluginRegistrationAttribute : Attribute
     public string Description { get; set; }
     public bool DeleteAsyncOperation { get; set; }
     public string UnSecureConfiguration { get; set; }
-    public string SecureConfiguration { get; set; }
     public bool Offline { get; set; }
     public bool Server { get; set; }
     public ImageTypeEnum Image1Type { get; set; }
     public ImageTypeEnum Image2Type { get; set; }
-    public PluginStepOperationEnum? Action { get; set; }
     #endregion
 
     #region Constructor Mandatory Properties
@@ -226,12 +224,6 @@ public enum MessageNameEnum
     ValidateRecurrenceRule,
     Win
 }
-public enum PluginStepOperationEnum
-{
-    Delete = 0,
-    Deactivate = 1,
-}
-
 public enum StageEnum
 {
     PreValidation = 10,

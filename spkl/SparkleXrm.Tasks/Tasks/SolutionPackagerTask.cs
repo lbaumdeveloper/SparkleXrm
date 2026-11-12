@@ -480,23 +480,8 @@ namespace SparkleXrm.Tasks
 
         private string GetPackagerFolder()
         {
-            // locate the CrmSvcUtil package folder
-            var targetfolder = ServiceLocator.DirectoryService.GetApplicationDirectory();
-
-            // If we are running in VS, then move up past bin/Debug
-            if (targetfolder.Contains(@"bin\Debug") || targetfolder.Contains(@"bin\Release"))
-            {
-                targetfolder += @"\..";
-            }
-
-            // move from spkl.v.v.v.\tools - back to packages folder
-            var binPath = ServiceLocator.DirectoryService.SimpleSearch(targetfolder + @"\..\..", "SolutionPackager.exe");
-            _trace.WriteLine("Target {0}", targetfolder);
-
-            if (string.IsNullOrEmpty(binPath))
-            {
-                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.UTILSNOTFOUND, String.Format("Cannot locate SolutionPackager at '{0}' - run Install-Package Microsoft.CrmSdk.CoreTools", binPath));
-            }
+            var binPath = CoreToolsLocator.CreateDefault().Find("SolutionPackager.exe");
+            _trace.WriteLine("Using {0}", binPath);
             return binPath;
         }
 

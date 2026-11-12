@@ -52,32 +52,15 @@ namespace SparkleXrm.Tasks
         {
             _folder = config.filePath;
 
-            // locate the CrmSvcUtil package folder
-            var targetfolder = ServiceLocator.DirectoryService.GetApplicationDirectory();
-            
-            // If we are running in VS, then move up past bin/Debug
-            if (targetfolder.Contains(@"bin\Debug") || targetfolder.Contains(@"bin\Release"))
-            {
-                targetfolder += @"\..";
-            }
+            var crmsvcutilPath = CoreToolsLocator.CreateDefault().Find("CrmSvcUtil.exe");
+            _trace.WriteLine("Using {0}", crmsvcutilPath);
+            var crmsvcutilFolder = Path.GetDirectoryName(crmsvcutilPath);
 
-            // move from spkl.v.v.v.\tools - back to packages folder
-            var crmsvcutilPath = ServiceLocator.DirectoryService.SimpleSearch(targetfolder + @"\..\..", "crmsvcutil.exe");
-            _trace.WriteLine("Target {0}", targetfolder);
-            var crmsvcutilFolder = new FileInfo(crmsvcutilPath).DirectoryName;
-            if (string.IsNullOrEmpty(crmsvcutilPath))
+            var filteringAssemblyPathString = Path.Combine(ServiceLocator.DirectoryService.GetApplicationDirectory(), "spkl.CrmSvcUtilExtensions.dll");
+            if (!File.Exists(filteringAssemblyPathString))
             {
                 throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.UTILSNOTFOUND,
-                    $"Cannot locate CrmSvcUtil at '{crmsvcutilPath}' - run Install-Package Microsoft.CrmSdk.CoreTools");
-            }
-
-            // Copy the filtering assembly
-            var filteringAssemblyPathString = ServiceLocator.DirectoryService.SimpleSearch(targetfolder + @"\..\..", "spkl.CrmSvcUtilExtensions.dll");
-         
-            if (string.IsNullOrEmpty(filteringAssemblyPathString))
-            {
-                throw new SparkleTaskException(SparkleTaskException.ExceptionTypes.UTILSNOTFOUND,
-                    $"Cannot locate spkl.CrmSvcUtilExtensions.dll at '{crmsvcutilPath}' ");
+                    $"Cannot locate '{filteringAssemblyPathString}'. It ships with spkl.exe in the spkl package.");
             }
             var filteringAssemblyPath = new FileInfo(filteringAssemblyPathString);
             var targetFilteringPath = Path.Combine(crmsvcutilFolder, "spkl.CrmSvcUtilExtensions.dll");
