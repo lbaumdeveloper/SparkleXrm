@@ -1,0 +1,6 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.134">
+  <!-- Holds the web resource files; nothing is compiled. The path below this folder is the web resource name, e.g. new_/js/account.js. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+</Project>

@@ -28,24 +28,25 @@ param(
 $ErrorActionPreference = 'Stop'
 
 function Find-Spkl {
+    $packageId = 'Spkl.OnPrem'
     $solutionPackages = Join-Path $PSScriptRoot '..\packages'
     $globalPackages = if ($env:NUGET_PACKAGES) { $env:NUGET_PACKAGES } else { Join-Path $env:USERPROFILE '.nuget\packages' }
 
     $candidates = @(
-        Get-ChildItem -Path $solutionPackages -Filter 'spkl.*' -Directory -ErrorAction SilentlyContinue |
-            ForEach-Object { Join-Path $_.FullName 'tools\spkl.exe' }
-        Get-ChildItem -Path (Join-Path $globalPackages 'spkl') -Directory -ErrorAction SilentlyContinue |
-            ForEach-Object { Join-Path $_.FullName 'tools\spkl.exe' }
-    ) | Where-Object { Test-Path $_ }
+        Get-ChildItem -Path $solutionPackages -Filter "$packageId.*" -Directory -ErrorAction SilentlyContinue |
+            ForEach-Object { [pscustomobject]@{ Version = $_.Name.Substring($packageId.Length + 1); Exe = Join-Path $_.FullName 'tools\spkl.exe' } }
+        Get-ChildItem -Path (Join-Path $globalPackages $packageId.ToLowerInvariant()) -Directory -ErrorAction SilentlyContinue |
+            ForEach-Object { [pscustomobject]@{ Version = $_.Name; Exe = Join-Path $_.FullName 'tools\spkl.exe' } }
+    ) | Where-Object { ($_.Version -replace '-.*$', '') -as [version] -and (Test-Path $_.Exe) }
 
     $latest = $candidates |
-        Sort-Object { [version](($_ -split '[\\/]')[-3] -replace '^spkl\.', '' -replace '-.*$', '') } -Descending |
+        Sort-Object { [version]($_.Version -replace '-.*$', '') } -Descending |
         Select-Object -First 1
 
     if (-not $latest) {
-        throw "spkl.exe not found. Restore the spkl NuGet package in the Tooling project."
+        throw "spkl.exe not found. Restore the Tooling project (dotnet restore, or build the solution once)."
     }
-    return $latest
+    return $latest.Exe
 }
 
 $spkl = Find-Spkl

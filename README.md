@@ -8,18 +8,20 @@ This repository contains only spkl. The original SparkleXrm framework, UI compon
 
 | Guide | Read it when |
 |---|---|
-| [Getting started](docs/getting-started.md) | Setting up a solution: install spkl once in a Tooling project, run it from VS Code, Visual Studio or a terminal. |
+| [Getting started](docs/getting-started.md) | Setting up a solution with `dotnet new spkl-solution`, running spkl from VS Code, Visual Studio or a terminal. |
 | [Commands](docs/commands.md) | You want to know what a task does, what it reads and what it changes or deletes. |
 | [spkl.json reference](docs/spkl-json.md) | Writing or debugging `spkl.json`: every option, paths and profiles. |
 | [Registration attributes](docs/registration-attributes.md) | Registering plugin steps, images, Custom APIs and workflow activities in code. |
 
-A ready-to-copy solution setup is in [`templates/solution`](templates/solution).
+The solution template is in [`templates/solution`](templates/solution).
 
 ## Quick start
 
 ```powershell
-Install-Package spkl -ProjectName Tooling      # once, only in the Tooling project
-.\Tooling\spkl.ps1 -Task plugins               # deploy plugins
+dotnet new install Spkl.OnPrem.Templates
+dotnet new spkl-solution -n Contoso --SolutionUniqueName ContosoCore
+cd Contoso; .\Tooling\New-SigningKey.ps1
+.\Tooling\spkl.ps1 -Task plugins               # deploy plugins (after building)
 .\Tooling\spkl.ps1 -Task webresources          # deploy web resources
 ```
 
@@ -33,9 +35,9 @@ Install-Package spkl -ProjectName Tooling      # once, only in the Tooling proje
 
 | Folder | Content |
 |---|---|
-| `spkl/` | Source: CLI (`spkl`), tasks (`SparkleXrm.Tasks`), tests and test projects |
+| `spkl/` | Source: CLI (`spkl`), tasks (`SparkleXrm.Tasks`), attribute package (`Spkl.Attributes`), tests and test projects |
 | `docs/` | Documentation |
-| `templates/solution/` | Files to copy into your own solution |
+| `templates/` | `dotnet new spkl-solution` template (`Spkl.OnPrem.Templates`) |
 
 Planned work is tracked in [`todo.md`](todo.md).
 

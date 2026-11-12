@@ -8,7 +8,7 @@ spkl <task> [path] [connection-string] [/p:<profile>] [switches]
 |---|---|
 | `task` | One of the tasks below. |
 | `path` | The folder that contains `spkl.json`, or the path of the `spkl.json` file itself. Sub-folders are not searched. Defaults to the current directory. |
-| `connection-string` | Optional. Without it spkl shows the console login (see [getting started](getting-started.md#6-connecting-to-dataverse)). Pass `""` for tasks that need no connection. A `Password=***` placeholder makes spkl prompt for the password. |
+| `connection-string` | Optional. Without it spkl shows the console login (see [getting started](getting-started.md#4-connecting-to-dataverse)). Pass `""` for tasks that need no connection. A `Password=***` placeholder makes spkl prompt for the password. |
 | `/p:<profile>` | Only use `spkl.json` entries whose `profile` contains this name. Without it, entries with no profile or with `default` in their profile are used. See [profiles](spkl-json.md#profiles). |
 
 Switches:

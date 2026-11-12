@@ -1,0 +1,12 @@
+<Project>
+  <PropertyGroup>
+    <!-- Keep bin\Debug\<Assembly>.dll, the path Tooling\spkl.json points to. -->
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
+    <SpklKeyFile>$(MSBuildThisFileDirectory)Tooling\key.snk</SpklKeyFile>
+  </PropertyGroup>
+  <!-- Dynamics 365 requires strong-named plugin assemblies; create the key once with Tooling\New-SigningKey.ps1. -->
+  <PropertyGroup Condition="Exists('$(SpklKeyFile)')">
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>$(SpklKeyFile)</AssemblyOriginatorKeyFile>
+  </PropertyGroup>
+</Project>

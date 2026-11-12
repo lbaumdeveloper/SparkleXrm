@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>net462</TargetFramework>
+    <RootNamespace>Contoso.Plugins</RootNamespace>
+    <AssemblyName>Contoso.Plugins</AssemblyName>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CrmSdk.CoreAssemblies" Version="9.0.2.60" />
+    <PackageReference Include="Microsoft.NETFramework.ReferenceAssemblies" Version="1.0.3" PrivateAssets="all" />
+    <PackageReference Include="Spkl.OnPrem.Attributes" Version="1.0.0" PrivateAssets="all" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System.Runtime.Serialization" />
+    <Reference Include="System.ServiceModel" />
+  </ItemGroup>
+  <ItemGroup>
+    <!-- Helper code is compiled into this assembly; sandboxed plugins cannot load a separate Helper.dll. -->
+    <Compile Include="..\Helper\**\*.cs" Exclude="..\Helper\bin\**;..\Helper\obj\**" LinkBase="Helper" />
+  </ItemGroup>
+</Project>

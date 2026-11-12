@@ -4,17 +4,17 @@
     {
       "profile": "default,plugins",
       "solution": "<SolutionUniqueName>",
-      "assemblypath": "..\\Plugins\\bin\\Debug\\<PluginsAssembly>.dll"
+      "assemblypath": "..\\Plugins\\bin\\Debug\\Contoso.Plugins.dll"
     },
     {
       "profile": "default,actions",
       "solution": "<SolutionUniqueName>",
-      "assemblypath": "..\\Actions\\bin\\Debug\\<ActionsAssembly>.dll"
+      "assemblypath": "..\\Actions\\bin\\Debug\\Contoso.Actions.dll"
     },
     {
       "profile": "default,workflows",
       "solution": "<SolutionUniqueName>",
-      "assemblypath": "..\\Workflows\\bin\\Debug\\<WorkflowsAssembly>.dll"
+      "assemblypath": "..\\Workflows\\bin\\Debug\\Contoso.Workflows.dll"
     }
   ],
   "webresources": [
@@ -32,7 +32,7 @@
       "generateOptionsetEnums": true,
       "generateStateEnums": true,
       "filename": "..\\Helper\\EarlyBoundTypes.cs",
-      "classNamespace": "<Namespace>.Helper",
+      "classNamespace": "Contoso.Helper",
       "serviceContextName": "XrmSvc"
     }
   ]
