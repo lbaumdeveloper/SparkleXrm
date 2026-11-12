@@ -128,7 +128,8 @@ Use `-Task whoami` to check which environment and user you are connected as.
 
 ## Releasing the packages
 
-1. Set `<Version>` in `Directory.Build.props` and the `Spkl.OnPrem` / `Spkl.OnPrem.Attributes` versions in `templates/solution/**/*.csproj` to the same number. `build/Pack.ps1` stops if they differ.
-2. Push a tag `v<Version>`, e.g. `v1.0.1`. The `publish` workflow packs all three packages and pushes them to the feed from the repository secrets `SPKL_FEED_URL`, `SPKL_FEED_API_KEY` and, for feeds that need credentials, `SPKL_FEED_USERNAME`. Without `SPKL_FEED_URL` the packages are only attached to the workflow run.
+The packages are not published from GitHub. Pack them on your machine or an internal build server and push them to the private feed there:
 
-To pack locally: `.\build\Pack.ps1 -OutputDirectory .\artifacts`.
+1. Set `<Version>` in `Directory.Build.props` and the `Spkl.OnPrem` / `Spkl.OnPrem.Attributes` versions in `templates/solution/**/*.csproj` to the same number. `build/Pack.ps1` stops if they differ.
+2. Pack: `.\build\Pack.ps1 -OutputDirectory .\artifacts`
+3. Push each `.nupkg` in `artifacts` with `dotnet nuget push` to your feed.

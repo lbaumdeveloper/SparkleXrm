@@ -31,5 +31,5 @@
 - [x] `dotnet new` solution template (Webresources, Plugins, Actions, Workflows, Helper, Tooling)
 - [x] Update NuGet metadata (ids `Spkl.OnPrem*`, authors, project URL, MIT license expression)
 - [x] Package icon
-- [x] Publish workflow (`build/Pack.ps1`, `.github/workflows/publish.yml`)
-- [ ] Set the feed secrets and publish the first version
+- [x] `build/Pack.ps1` packs all three packages (no publishing from GitHub)
+- [ ] Publish the first version to the private feed (outside GitHub)
