@@ -60,12 +60,13 @@ namespace SparkleXrm.Tasks
             return candidates[0].Path;
         }
 
+        // Plain string formatting: .NET Framework's Path.Combine rejects the '<' and '>' of the placeholder.
         private IEnumerable<string> SearchedLocations()
         {
             yield return _applicationDirectory;
-            yield return Path.Combine(PackagesConfigRoot(), PackageId + ".<version>", ToolsSubFolder);
+            yield return $@"{PackagesConfigRoot()}\{PackageId}.<version>\{ToolsSubFolder}";
             if (!string.IsNullOrEmpty(_globalPackagesFolder))
-                yield return Path.Combine(_globalPackagesFolder, PackageId.ToLowerInvariant(), "<version>", ToolsSubFolder);
+                yield return $@"{_globalPackagesFolder}\{PackageId.ToLowerInvariant()}\<version>\{ToolsSubFolder}";
         }
 
         // packages.config: <solution>\packages\spkl.<version>\tools\spkl.exe
