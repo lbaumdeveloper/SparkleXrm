@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json.schemastore.org/template",
+  "author": "lbaumdeveloper",
+  "classifications": ["Dynamics 365", "Plugins", "spkl"],
+  "identity": "Spkl.OnPrem.Solution",
+  "name": "spkl Dynamics 365 solution",
+  "description": "Visual Studio solution with Plugins, Actions, Workflows, Helper, Webresources and Tooling projects, deployed with spkl.",
+  "shortName": "spkl-solution",
+  "sourceName": "Contoso",
+  "preferNameDirectory": true,
+  "tags": {
+    "language": "C#",
+    "type": "solution"
+  },
+  "symbols": {
+    "SolutionUniqueName": {
+      "type": "parameter",
+      "datatype": "string",
+      "isRequired": true,
+      "replaces": "<SolutionUniqueName>",
+      "description": "Unique name of the Dynamics 365 solution that spkl deploys to. Never the default solution."
+    }
+  },
+  "guids": ["915DB67E-EBF1-4F06-AF70-BB773D97BF51", "9B802173-11F6-487E-BE1D-F9A2410986B6", "7DF00128-7252-4891-845F-D33A888A5E13", "F2F74AF8-33D1-48E4-8389-948087AFD4CF", "E7CD3C4E-36E6-4A28-8C74-773B8B357635", "6251E316-9FDC-406A-966D-32BC2A6E9252"],
+  "sources": [
+    {
+      "modifiers": [
+        { "exclude": [ "**/bin/**", "**/obj/**", "**/.vs/**" ] }
+      ]
+    }
+  ],
+  "postActions": [
+    {
+      "description": "Create the strong-name key Tooling\\key.snk for the plugin assemblies.",
+      "manualInstructions": [ { "text": "Run Tooling\\New-SigningKey.ps1 once and commit Tooling\\key.snk." } ],
+      "actionId": "3A7C4B45-1F5D-4A30-959A-51B88E82B5D2",
+      "args": {
+        "executable": "powershell",
+        "args": "-NoProfile -File Tooling/New-SigningKey.ps1",
+        "redirectStandardOutput": false
+      },
+      "continueOnError": true
+    }
+  ]
+}

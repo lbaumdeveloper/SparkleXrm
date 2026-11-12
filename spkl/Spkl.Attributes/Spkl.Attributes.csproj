@@ -1,0 +1,22 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Source-only package: adds CrmPluginRegistrationAttribute.cs to the consuming project; no assembly is shipped. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Spkl.OnPrem.Attributes</PackageId>
+    <Title>spkl registration attribute (source)</Title>
+    <Description>Adds CrmPluginRegistrationAttribute.cs to plugin and workflow projects, so spkl can register them from code. Source only: nothing is added to the plugin's dependencies.</Description>
+    <DevelopmentDependency>true</DevelopmentDependency>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <IsPackable>true</IsPackable>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="..\SparkleXrm.Tasks\CrmPluginRegistrationAttribute.cs"
+             Pack="true"
+             PackagePath="contentFiles\cs\any\;content\"
+             BuildAction="Compile"
+             CopyToOutputDirectory="Never" />
+  </ItemGroup>
+</Project>

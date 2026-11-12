@@ -25,3 +25,26 @@ jobs:
         run: dotnet build spkl -c Release
       - name: Unit tests
         run: dotnet test SparkleXrm.Tasks.Tests --filter "TestCategory=Unit Tests"
+      - name: Pack attribute and template packages
+        run: |
+          dotnet pack Spkl.Attributes -c Release -o "$env:RUNNER_TEMP\packages"
+          dotnet pack ..\templates\Spkl.OnPrem.Templates.csproj -c Release -o "$env:RUNNER_TEMP\packages"
+      - name: Build a solution created from the template
+        working-directory: ${{ runner.temp }}
+        run: |
+          dotnet new install "$env:RUNNER_TEMP\packages\Spkl.OnPrem.Templates.1.0.0.nupkg"
+          dotnet new spkl-solution -n Fabrikam -o Fabrikam --SolutionUniqueName ContosoCore --allow-scripts no
+          cd Fabrikam
+          pwsh -NoProfile -File Tooling\New-SigningKey.ps1
+          if (Select-String -Path Tooling\spkl.json -Pattern '<SolutionUniqueName>' -SimpleMatch) { throw 'SolutionUniqueName was not replaced' }
+          dotnet new nugetconfig
+          dotnet nuget add source "$env:RUNNER_TEMP\packages" --name local --configfile nuget.config
+          foreach ($project in 'Plugins\Fabrikam.Plugins.csproj', 'Actions\Fabrikam.Actions.csproj', 'Workflows\Fabrikam.Workflows.csproj', 'Helper\Fabrikam.Helper.csproj', 'Webresources\Webresources.csproj') {
+            dotnet build $project
+            if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+          }
+          foreach ($assembly in 'Plugins\bin\Debug\Fabrikam.Plugins.dll', 'Actions\bin\Debug\Fabrikam.Actions.dll', 'Workflows\bin\Debug\Fabrikam.Workflows.dll') {
+            $token = [System.Reflection.AssemblyName]::GetAssemblyName((Resolve-Path $assembly)).GetPublicKeyToken()
+            if (-not $token -or $token.Length -eq 0) { throw "$assembly is not strong-named" }
+            if (-not [System.Reflection.Assembly]::LoadFile((Resolve-Path $assembly).Path).GetType('CrmPluginRegistrationAttribute')) { throw "$assembly does not contain CrmPluginRegistrationAttribute" }
+          }

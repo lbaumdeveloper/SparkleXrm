@@ -26,7 +26,9 @@
 - [x] Update `Microsoft.CrmSdk.XrmTooling.CoreAssembly` to 9.1.1.103
 - [x] Read plugin assemblies with `MetadataLoadContext` instead of `Assembly.ReflectionOnlyLoad`
 - [x] Replace the `CmdLine` package with a built-in argument parser
-- [ ] Ship `CrmPluginRegistrationAttribute` as a source-only NuGet package
+- [x] Ship `CrmPluginRegistrationAttribute` as a source-only NuGet package (`Spkl.OnPrem.Attributes`)
 - [x] CI pipeline: build and run the `SparkleXrm.Tasks.Tests` unit tests
-- [ ] `dotnet new` solution template (Webresources, Plugins, Actions, Workflows, Helper, Tooling)
-- [ ] Update NuGet metadata (authors, project URL, icon)
+- [x] `dotnet new` solution template (Webresources, Plugins, Actions, Workflows, Helper, Tooling)
+- [x] Update NuGet metadata (ids `Spkl.OnPrem*`, authors, project URL, MIT license expression)
+- [ ] Package icon
+- [ ] Publish the packages to a feed (CI pack of `Spkl.OnPrem` needs the `CrmSvcUtilFilteringService` build)

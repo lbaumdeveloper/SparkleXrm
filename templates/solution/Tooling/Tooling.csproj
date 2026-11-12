@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.Build.NoTargets/3.7.134">
+  <!-- The only project that references spkl. Restoring it downloads spkl.exe, which Tooling\spkl.ps1 runs. -->
+  <PropertyGroup>
+    <TargetFramework>net48</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Spkl.OnPrem" Version="1.0.0" />
+  </ItemGroup>
+</Project>

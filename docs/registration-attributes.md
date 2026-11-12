@@ -2,7 +2,7 @@
 
 spkl reads the registration of plugins, Custom APIs and workflow activities from `[CrmPluginRegistration]` attributes on the classes. The code is the single source of truth: what is not in an attribute is removed on the next deploy (see [`plugins`](commands.md#plugins)).
 
-The attribute class comes from `CrmPluginRegistrationAttribute.cs`, shared through `Directory.Build.targets` ([getting started, step 3](getting-started.md#3-share-the-registration-attribute)).
+The attribute class comes from the source-only package `Spkl.OnPrem.Attributes`, which the [solution template](getting-started.md#1-create-the-solution) already references in `Plugins`, `Actions` and `Workflows`.
 
 ## Plugin step
 

@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Packs the solution folder as a "dotnet new" template; nothing is compiled. -->
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+    <PackageId>Spkl.OnPrem.Templates</PackageId>
+    <PackageType>Template</PackageType>
+    <Title>spkl solution template</Title>
+    <Description>dotnet new spkl-solution: a Dynamics 365 solution with Plugins, Actions, Workflows, Helper, Webresources and Tooling projects, deployed with spkl.</Description>
+    <IncludeBuildOutput>false</IncludeBuildOutput>
+    <IncludeContentInPack>true</IncludeContentInPack>
+    <ContentTargetFolders>content</ContentTargetFolders>
+    <NoDefaultExcludes>true</NoDefaultExcludes>
+    <EnableDefaultItems>false</EnableDefaultItems>
+    <SuppressDependenciesWhenPacking>true</SuppressDependenciesWhenPacking>
+    <NoWarn>$(NoWarn);NU5128</NoWarn>
+  </PropertyGroup>
+  <ItemGroup>
+    <Content Include="solution\**\*" Exclude="solution\**\bin\**;solution\**\obj\**;solution\**\.vs\**" CopyToOutputDirectory="Never" />
+  </ItemGroup>
+</Project>
