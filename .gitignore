@@ -140,3 +140,6 @@ UpgradeLog*.XML
 *.ide-wal
 /.vs
 /spkl/.vs/spkl
+
+# Local package output of build/Pack.ps1
+artifacts/

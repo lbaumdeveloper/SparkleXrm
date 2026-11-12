@@ -125,3 +125,7 @@ $env:SPKL_CONNECTION = "AuthType=ClientSecret;Url=https://contoso.crm4.dynamics.
 Never commit connection strings. `-Connection` on `spkl.ps1` overrides the environment variable.
 
 Use `-Task whoami` to check which environment and user you are connected as.
+
+## Releasing the packages
+
+See [releasing](releasing.md): first-time setup of the private GitLab, publishing the first version and updates.

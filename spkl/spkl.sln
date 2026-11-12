@@ -37,7 +37,7 @@ Project("{E24C65DC-7377-472B-9ABA-BC803B73C61A}") = "Webresources", "Webresource
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "spkl", "spkl\spkl.csproj", "{CADC1BD4-46B5-46D9-B2CC-28482B7B90C5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CrmSvcUtil.FilteringService", "CrmSvcUtilFilteringService\CrmSvcUtil.FilteringService.csproj", "{EA2B393E-2C0E-4F80-A44C-712877A04870}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "CrmSvcUtil.FilteringService", "CrmSvcUtilFilteringService\CrmSvcUtil.FilteringService.csproj", "{EA2B393E-2C0E-4F80-A44C-712877A04870}"
 EndProject
 Project("{F5034706-568F-408A-B7B3-4D38C6DB8A32}") = "BuildTasks", "BuildTasks\BuildTasks.pssproj", "{6CAFC0C6-A428-4D30-A9F9-700E829FEA51}"
 EndProject

@@ -2,15 +2,15 @@
 <package xmlns="http://schemas.microsoft.com/packaging/2011/08/nuspec.xsd">
   <metadata>
     <id>Spkl.OnPrem</id>
-    <version>1.0.0$suffix$</version>
+    <version>$version$</version>
     <title>spkl for Dynamics 365 on-premises</title>
     <authors>Scott Durow, lbaumdeveloper</authors>
     <copyright>Copyright (c) Scott Durow and contributors</copyright>
     <license type="expression">MIT</license>
+    <icon>icon.png</icon>
     <projectUrl>https://github.com/lbaumdeveloper/SparkleXrm</projectUrl>
     <repository type="git" url="https://github.com/lbaumdeveloper/SparkleXrm" />
     <description>Deployment task runner for Dynamics 365 v9 on-premises and online: plugins, workflow activities, web resources, early-bound types and solutions. Fork of spkl by Scott Durow.</description>
-    <releaseNotes>$releasenotes$</releaseNotes>
     <tags>dynamics-crm dynamics-365 on-premises spkl plugins deployment</tags>
     <developmentDependency>true</developmentDependency>
     <dependencies>
@@ -18,6 +18,7 @@
     </dependencies>
   </metadata>
   <files>
+    <file src="..\..\..\assets\icon.png" target="" />
     <file src="..\..\..\templates\solution\Tooling\spkl.json" target="content\spkl.json" />
     <file src="..\..\..\templates\solution\Tooling\spkl.ps1" target="content\spkl.ps1" />
     <file src="..\bin\Release\net48\**\*" target="tools" />
