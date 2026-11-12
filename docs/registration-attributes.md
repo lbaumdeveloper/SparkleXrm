@@ -35,7 +35,7 @@ One attribute = one step. Add several attributes to the same class for several s
 | `Image2Type`, `Image2Name`, `Image2Attributes` | Second image. |
 | `Server`, `Offline` | Supported deployment. Default is server only. |
 
-Accepted but **not applied** by the current code: `SecureConfiguration`, `Action`.
+There is no `SecureConfiguration`: secure configuration usually holds secrets that differ per environment and must not be in source control. Set it in the Plugin Registration Tool on each server. To remove a step, delete its attribute; spkl deletes steps that no longer have one.
 
 ### Example with images
 
