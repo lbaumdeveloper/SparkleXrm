@@ -30,7 +30,7 @@ jobs:
       - name: Build a solution created from the template
         working-directory: ${{ runner.temp }}
         run: |
-          dotnet new install "$env:RUNNER_TEMP\packages\Spkl.OnPrem.Templates.1.0.0.nupkg"
+          dotnet new install (Get-ChildItem "$env:RUNNER_TEMP\packages\Spkl.OnPrem.Templates.*.nupkg" | Select-Object -First 1).FullName
           dotnet new spkl-solution -n Fabrikam -o Fabrikam --SolutionUniqueName ContosoCore --allow-scripts no
           cd Fabrikam
           pwsh -NoProfile -File Tooling\New-SigningKey.ps1
