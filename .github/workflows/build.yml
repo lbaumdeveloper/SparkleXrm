@@ -37,9 +37,10 @@ jobs:
           cd Fabrikam
           pwsh -NoProfile -File Tooling\New-SigningKey.ps1
           if (Select-String -Path Tooling\spkl.json -Pattern '<SolutionUniqueName>' -SimpleMatch) { throw 'SolutionUniqueName was not replaced' }
-          $sources = @('--source', "$env:RUNNER_TEMP\packages", '--source', 'https://api.nuget.org/v3/index.json')
+          dotnet new nugetconfig
+          dotnet nuget add source "$env:RUNNER_TEMP\packages" --name local --configfile nuget.config
           foreach ($project in 'Plugins\Fabrikam.Plugins.csproj', 'Actions\Fabrikam.Actions.csproj', 'Workflows\Fabrikam.Workflows.csproj', 'Helper\Fabrikam.Helper.csproj', 'Webresources\Webresources.csproj') {
-            dotnet build $project @sources
+            dotnet build $project
             if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
           }
           foreach ($assembly in 'Plugins\bin\Debug\Fabrikam.Plugins.dll', 'Actions\bin\Debug\Fabrikam.Actions.dll', 'Workflows\bin\Debug\Fabrikam.Workflows.dll') {
