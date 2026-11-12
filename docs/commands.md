@@ -116,6 +116,12 @@ Generates early-bound classes with `CrmSvcUtil.exe` for the entities and actions
 
 All of these use the `solutions` section and `SolutionPackager.exe` from `Microsoft.CrmSdk.CoreTools`.
 
+spkl looks for `CrmSvcUtil.exe` and `SolutionPackager.exe` only in these places. A copy next to `spkl.exe` wins; otherwise the highest package version is used:
+
+1. next to `spkl.exe`
+2. `<solution>\packages\Microsoft.CrmSdk.CoreTools.<version>\content\bin\coretools\` (packages.config)
+3. `%NUGET_PACKAGES%` or `%USERPROFILE%\.nuget\packages`, then `microsoft.crmsdk.coretools\<version>\content\bin\coretools\` (PackageReference)
+
 | Task | What it does |
 |---|---|
 | `unpack` | Exports `solution_uniquename` from the environment and extracts it into `packagepath`. |
