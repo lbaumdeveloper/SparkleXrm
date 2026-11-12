@@ -1,0 +1,48 @@
+# Private GitLab server only: builds and tests on every pipeline, and on a tag v<Version>
+# pushes Spkl.OnPrem, Spkl.OnPrem.Attributes and Spkl.OnPrem.Templates to the project's NuGet package registry.
+# Needs a Windows runner (shell executor, PowerShell) with the .NET 8 SDK and .NET Framework 4.8 targeting pack.
+# Set SPKL_RUNNER_TAG to that runner's tag. SPKL_FEED_URL overrides the target feed; the default is this project's registry.
+
+variables:
+  SPKL_RUNNER_TAG: windows
+  PACKAGES_DIR: $CI_PROJECT_DIR\artifacts
+
+default:
+  tags:
+    - $SPKL_RUNNER_TAG
+
+stages:
+  - build
+  - publish
+
+build:
+  stage: build
+  script:
+    - cd spkl
+    - dotnet build TestPlugin; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - dotnet build TestWorkflowActivity; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - dotnet build TestPluginWorkflowCombined; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - dotnet test SparkleXrm.Tasks.Tests --filter "TestCategory=Unit Tests"; if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+    - ..\build\Pack.ps1 -OutputDirectory $env:PACKAGES_DIR
+  artifacts:
+    paths:
+      - artifacts/*.nupkg
+    expire_in: 1 week
+
+publish:
+  stage: publish
+  needs: [build]
+  rules:
+    - if: $CI_COMMIT_TAG =~ /^v\d+\.\d+\.\d+/
+  script:
+    - |
+      $version = ([xml](Get-Content Directory.Build.props)).Project.PropertyGroup.Version | Where-Object { $_ } | Select-Object -First 1
+      if ("v$version" -ne $env:CI_COMMIT_TAG) { throw "Tag $env:CI_COMMIT_TAG does not match Version $version in Directory.Build.props" }
+    - |
+      $feed = if ($env:SPKL_FEED_URL) { $env:SPKL_FEED_URL } else { "$env:CI_API_V4_URL/projects/$env:CI_PROJECT_ID/packages/nuget/index.json" }
+      dotnet nuget add source $feed --name gitlab --username gitlab-ci-token --password $env:CI_JOB_TOKEN --store-password-in-clear-text
+      if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      foreach ($package in Get-ChildItem $env:PACKAGES_DIR -Filter *.nupkg) {
+        dotnet nuget push $package.FullName --source gitlab --skip-duplicate
+        if ($LASTEXITCODE -ne 0) { exit $LASTEXITCODE }
+      }

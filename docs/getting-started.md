@@ -128,8 +128,17 @@ Use `-Task whoami` to check which environment and user you are connected as.
 
 ## Releasing the packages
 
-The packages are not published from GitHub. Pack them on your machine or an internal build server and push them to the private feed there:
+The packages are never published from GitHub. On the private GitLab server, `.gitlab-ci.yml` does it:
 
 1. Set `<Version>` in `Directory.Build.props` and the `Spkl.OnPrem` / `Spkl.OnPrem.Attributes` versions in `templates/solution/**/*.csproj` to the same number. `build/Pack.ps1` stops if they differ.
-2. Pack: `.\build\Pack.ps1 -OutputDirectory .\artifacts`
-3. Push each `.nupkg` in `artifacts` with `dotnet nuget push` to your feed.
+2. Push a tag `v<Version>`, e.g. `v1.0.1`, to GitLab. The pipeline builds, runs the unit tests, packs all three packages and pushes them to the project's NuGet package registry with the job token.
+
+The pipeline needs a Windows runner (shell executor) with the .NET 8 SDK; set the CI/CD variable `SPKL_RUNNER_TAG` to its tag (default `windows`). `SPKL_FEED_URL` pushes to another GitLab registry instead, e.g. a group one.
+
+Developers add the registry once:
+
+```powershell
+dotnet nuget add source "https://<gitlab>/api/v4/projects/<id>/packages/nuget/index.json" --name spkl --username <user> --password <personal access token with read_api>
+```
+
+To pack without GitLab: `.\build\Pack.ps1 -OutputDirectory .\artifacts`.

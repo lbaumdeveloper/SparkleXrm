@@ -31,5 +31,5 @@
 - [x] `dotnet new` solution template (Webresources, Plugins, Actions, Workflows, Helper, Tooling)
 - [x] Update NuGet metadata (ids `Spkl.OnPrem*`, authors, project URL, MIT license expression)
 - [x] Package icon
-- [x] `build/Pack.ps1` packs all three packages (no publishing from GitHub)
-- [ ] Publish the first version to the private feed (outside GitHub)
+- [x] `build/Pack.ps1` packs all three packages; `.gitlab-ci.yml` publishes them on the private GitLab (never from GitHub)
+- [ ] Mirror the repo to the private GitLab, register a Windows runner and publish the first version
