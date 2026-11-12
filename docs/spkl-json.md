@@ -73,7 +73,7 @@ Used by `webresources`, `download-webresources` and `get-webresources`.
 |---|---|---|---|
 | `profile` | string | – | See [profiles](#profiles). |
 | `root` | string | spkl.json folder | Folder the web resource files live in. |
-| `solution` | string | **required** | Unique name of the solution the web resources are added to. spkl stops with an error if it is missing. |
+| `solution` | string | **required** | Unique name of the solution the web resources are added to, and downloaded from by `download-webresources`. spkl stops with an error if it is missing. |
 | `autodetect` | `yes` / `no` | `no` | Deploy every file under `root`; the path below `root` becomes the unique name. |
 | `deleteaction` | `no` / `remove` / `delete` | `no` | With `autodetect`: what to do with web resources in `solution` that no longer exist on disk. |
 | `files` | list | – | Files to deploy when `autodetect` is off. |
@@ -120,7 +120,7 @@ If the section is missing, spkl generates `Entities.cs` for `account,contact` in
 
 ## `solutions`
 
-Used by `unpack`, `unpacksolution`, `pack`, `import`, `export` and `download-webresources`.
+Used by `unpack`, `unpacksolution`, `pack`, `import` and `export`.
 
 | Field | Type | Default | Meaning |
 |---|---|---|---|
@@ -142,5 +142,3 @@ Used by `unpack`, `unpacksolution`, `pack`, `import`, `export` and `download-web
 | `map` | `file` → `<FileToFile>`, `path` → `<FileToPath>`, `folder` → `<Folder>` |
 | `from` | Path inside the solution package, e.g. `WebResources\\**\\*.*` |
 | `to` | Path on disk the file is taken from when packing |
-
-`download-webresources` needs a `map` whose `from` starts with `WebResources` to know where to save files.

@@ -84,12 +84,13 @@ Web resource type is taken from the file extension: `htm/html, js, css, png, gif
 
 ### `download-webresources`
 
-Downloads web resources of a solution to disk. Needs **both**:
+Downloads the web resources of each `webresources` entry's `solution` into its `root` folder. The name decides the path below `root`, the same layout `autodetect` deploys from:
 
-- a `solutions` entry (its `solution_uniquename` decides which solution to download from), and
-- a `map` in that entry with a `from` starting with `WebResources`, which decides the local folder.
+```
+new_/js/account.js  →  <root>\new_\js\account.js
+```
 
-Existing files are kept unless `/o` is passed.
+Web resources not yet listed in `files` are added to `spkl.json` (a backup is created first). Entries with `autodetect` get the files only. Existing files are kept unless `/o` is passed.
 
 ### `get-webresources`
 
